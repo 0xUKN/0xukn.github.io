@@ -2,66 +2,66 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>web on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/web/</link>
+    <link>https://0xukn.fr/tags/web/</link>
     <description>Recent content in web on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 04 Mar 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/web/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/web/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : Sogeti Quals 2019 - NoteBad.exe</title>
-      <link>https://www.0xukn.fr/posts/writeupsogeti2019notebad.exe/</link>
+      <link>https://0xukn.fr/posts/writeupsogeti2019notebad.exe/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsogeti2019notebad.exe/</guid>
+      <guid>https://0xukn.fr/posts/writeupsogeti2019notebad.exe/</guid>
       <description>La ShadowLeague vous met gracieusement à disposition un gestionnaire de notes. Not bad, huh ?</description>
     </item>
     
     <item>
       <title>Write Up : SantHackLaus 2019 - Be my valentine</title>
-      <link>https://www.0xukn.fr/posts/writeupsanthacklaus2019bemyvalentine/</link>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019bemyvalentine/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsanthacklaus2019bemyvalentine/</guid>
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019bemyvalentine/</guid>
       <description>Take care of your heart (maybe also your eyes).</description>
     </item>
     
     <item>
       <title>Write Up : SantHackLaus 2019 - Netrunner</title>
-      <link>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
       <description>V, I got a mission for you! We discoved a Netrunner who hack neural implants to create false memories. We spotted the target&amp;rsquo;s interface on the Net.</description>
     </item>
     
     <item>
       <title>Write Up : ECW 2018 - Troll.JSP</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2018trolljsp/</link>
+      <link>https://0xukn.fr/posts/writeupecw2018trolljsp/</link>
       <pubDate>Fri, 02 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2018trolljsp/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2018trolljsp/</guid>
       <description>A tr0ll Web challenge based on CVE-2017-5638</description>
     </item>
     
     <item>
       <title>Write Up : ECW 2018 - SysIA</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2018sysia/</link>
+      <link>https://0xukn.fr/posts/writeupecw2018sysia/</link>
       <pubDate>Thu, 01 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2018sysia/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2018sysia/</guid>
       <description>Our young sysadmin IA still does some human errors. I guess it still has to learn before production. But we can&amp;rsquo;t afford to delay it another time !</description>
     </item>
     
     <item>
       <title>Write Up : ECW 2018 - AdmYSsion</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2018admyssion/</link>
+      <link>https://0xukn.fr/posts/writeupecw2018admyssion/</link>
       <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2018admyssion/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2018admyssion/</guid>
       <description>An LDAP Injection challenge with a neat trick &amp;hellip;</description>
     </item>
     

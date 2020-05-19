@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Shellshock on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/shellshock/</link>
+    <link>https://0xukn.fr/tags/shellshock/</link>
     <description>Recent content in Shellshock on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 02 Jan 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/shellshock/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/shellshock/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : SantHackLaus 2019 - Netrunner</title>
-      <link>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
       <description>V, I got a mission for you! We discoved a Netrunner who hack neural implants to create false memories. We spotted the target&amp;rsquo;s interface on the Net.</description>
     </item>
     

@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>cryptography on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/cryptography/</link>
+    <link>https://0xukn.fr/tags/cryptography/</link>
     <description>Recent content in cryptography on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 30 May 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/cryptography/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/cryptography/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : ECSC Quals 2019 - RDRL</title>
-      <link>https://www.0xukn.fr/posts/writeupqualifsecsc2019rdrl/</link>
+      <link>https://0xukn.fr/posts/writeupqualifsecsc2019rdrl/</link>
       <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupqualifsecsc2019rdrl/</guid>
+      <guid>https://0xukn.fr/posts/writeupqualifsecsc2019rdrl/</guid>
       <description>Analyze the encryption algorithm in cipher.py and decrypt flag.png.enc.</description>
     </item>
     
     <item>
       <title>Write Up : SantHackLaus 2019 - Random Secret Message</title>
-      <link>https://www.0xukn.fr/posts/writeupsanthacklaus2019randomsecretmessage/</link>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019randomsecretmessage/</link>
       <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsanthacklaus2019randomsecretmessage/</guid>
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019randomsecretmessage/</guid>
       <description>We have collected some files from a strange intercepted communication. Can you investigate ?</description>
     </item>
     

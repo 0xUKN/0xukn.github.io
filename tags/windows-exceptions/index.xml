@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Windows Exceptions on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/windows-exceptions/</link>
+    <link>https://0xukn.fr/tags/windows-exceptions/</link>
     <description>Recent content in Windows Exceptions on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 28 Oct 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/windows-exceptions/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/windows-exceptions/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : ECW 2019 - Exceptions</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2019exceptions/</link>
+      <link>https://0xukn.fr/posts/writeupecw2019exceptions/</link>
       <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2019exceptions/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2019exceptions/</guid>
       <description>Once analyzed, this binary will probably give you a flag!</description>
     </item>
     

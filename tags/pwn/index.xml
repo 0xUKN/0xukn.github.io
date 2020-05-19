@@ -2,48 +2,48 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>pwn on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/pwn/</link>
+    <link>https://0xukn.fr/tags/pwn/</link>
     <description>Recent content in pwn on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 21 Nov 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/pwn/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/pwn/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : ECW 2019 - sploitwin</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2019sploitwin/</link>
+      <link>https://0xukn.fr/posts/writeupecw2019sploitwin/</link>
       <pubDate>Thu, 21 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2019sploitwin/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2019sploitwin/</guid>
       <description>A Windows 10 pwn challenge</description>
     </item>
     
     <item>
       <title>Write Up : ECW 2019 - MySudo</title>
-      <link>https://www.0xukn.fr/posts/writeupecw2019mysudo/</link>
+      <link>https://0xukn.fr/posts/writeupecw2019mysudo/</link>
       <pubDate>Sat, 02 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupecw2019mysudo/</guid>
+      <guid>https://0xukn.fr/posts/writeupecw2019mysudo/</guid>
       <description>Once analyzed, this binary will probably give you a flag!</description>
     </item>
     
     <item>
       <title>Write Up : ECSC Quals 2019 - Filereader</title>
-      <link>https://www.0xukn.fr/posts/writeupqualifsecsc2019filereader/</link>
+      <link>https://0xukn.fr/posts/writeupqualifsecsc2019filereader/</link>
       <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupqualifsecsc2019filereader/</guid>
+      <guid>https://0xukn.fr/posts/writeupqualifsecsc2019filereader/</guid>
       <description>Your objective : read the file /home/user0/flag.</description>
     </item>
     
     <item>
       <title>Write Up : Sogeti Quals 2019 - Game Editor</title>
-      <link>https://www.0xukn.fr/posts/writeupsogeti2019gameeditor/</link>
+      <link>https://0xukn.fr/posts/writeupsogeti2019gameeditor/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/posts/writeupsogeti2019gameeditor/</guid>
+      <guid>https://0xukn.fr/posts/writeupsogeti2019gameeditor/</guid>
       <description>The Game - You need to be admin to have the flag</description>
     </item>
     

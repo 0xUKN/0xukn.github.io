@@ -2,318 +2,318 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on 0xUKN - (in)Security Blog</title>
-    <link>https://www.0xukn.fr/tags/</link>
+    <link>https://0xukn.fr/tags/</link>
     <description>Recent content in Tags on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 14 May 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.0xukn.fr/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://0xukn.fr/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>game-hacking</title>
-      <link>https://www.0xukn.fr/tags/game-hacking/</link>
+      <link>https://0xukn.fr/tags/game-hacking/</link>
       <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/game-hacking/</guid>
+      <guid>https://0xukn.fr/tags/game-hacking/</guid>
       <description></description>
     </item>
     
     <item>
       <title>reverse-engineering</title>
-      <link>https://www.0xukn.fr/tags/reverse-engineering/</link>
+      <link>https://0xukn.fr/tags/reverse-engineering/</link>
       <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/reverse-engineering/</guid>
+      <guid>https://0xukn.fr/tags/reverse-engineering/</guid>
       <description></description>
     </item>
     
     <item>
       <title>pwn</title>
-      <link>https://www.0xukn.fr/tags/pwn/</link>
+      <link>https://0xukn.fr/tags/pwn/</link>
       <pubDate>Thu, 21 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/pwn/</guid>
+      <guid>https://0xukn.fr/tags/pwn/</guid>
       <description></description>
     </item>
     
     <item>
       <title>stack overflow</title>
-      <link>https://www.0xukn.fr/tags/stack-overflow/</link>
+      <link>https://0xukn.fr/tags/stack-overflow/</link>
       <pubDate>Thu, 21 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/stack-overflow/</guid>
+      <guid>https://0xukn.fr/tags/stack-overflow/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Windows exploitation</title>
-      <link>https://www.0xukn.fr/tags/windows-exploitation/</link>
+      <link>https://0xukn.fr/tags/windows-exploitation/</link>
       <pubDate>Thu, 21 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/windows-exploitation/</guid>
+      <guid>https://0xukn.fr/tags/windows-exploitation/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Linux exploitation</title>
-      <link>https://www.0xukn.fr/tags/linux-exploitation/</link>
+      <link>https://0xukn.fr/tags/linux-exploitation/</link>
       <pubDate>Sat, 02 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/linux-exploitation/</guid>
+      <guid>https://0xukn.fr/tags/linux-exploitation/</guid>
       <description></description>
     </item>
     
     <item>
       <title>mruby</title>
-      <link>https://www.0xukn.fr/tags/mruby/</link>
+      <link>https://0xukn.fr/tags/mruby/</link>
       <pubDate>Sat, 02 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/mruby/</guid>
+      <guid>https://0xukn.fr/tags/mruby/</guid>
       <description></description>
     </item>
     
     <item>
       <title>ARM</title>
-      <link>https://www.0xukn.fr/tags/arm/</link>
+      <link>https://0xukn.fr/tags/arm/</link>
       <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/arm/</guid>
+      <guid>https://0xukn.fr/tags/arm/</guid>
       <description></description>
     </item>
     
     <item>
       <title>embedded</title>
-      <link>https://www.0xukn.fr/tags/embedded/</link>
+      <link>https://0xukn.fr/tags/embedded/</link>
       <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/embedded/</guid>
+      <guid>https://0xukn.fr/tags/embedded/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Windows Exceptions</title>
-      <link>https://www.0xukn.fr/tags/windows-exceptions/</link>
+      <link>https://0xukn.fr/tags/windows-exceptions/</link>
       <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/windows-exceptions/</guid>
+      <guid>https://0xukn.fr/tags/windows-exceptions/</guid>
       <description></description>
     </item>
     
     <item>
       <title>cryptography</title>
-      <link>https://www.0xukn.fr/tags/cryptography/</link>
+      <link>https://0xukn.fr/tags/cryptography/</link>
       <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/cryptography/</guid>
+      <guid>https://0xukn.fr/tags/cryptography/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Z3</title>
-      <link>https://www.0xukn.fr/tags/z3/</link>
+      <link>https://0xukn.fr/tags/z3/</link>
       <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/z3/</guid>
+      <guid>https://0xukn.fr/tags/z3/</guid>
       <description></description>
     </item>
     
     <item>
       <title>forensics</title>
-      <link>https://www.0xukn.fr/tags/forensics/</link>
+      <link>https://0xukn.fr/tags/forensics/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/forensics/</guid>
+      <guid>https://0xukn.fr/tags/forensics/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Go</title>
-      <link>https://www.0xukn.fr/tags/go/</link>
+      <link>https://0xukn.fr/tags/go/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/go/</guid>
+      <guid>https://0xukn.fr/tags/go/</guid>
       <description></description>
     </item>
     
     <item>
       <title>misc</title>
-      <link>https://www.0xukn.fr/tags/misc/</link>
+      <link>https://0xukn.fr/tags/misc/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/misc/</guid>
+      <guid>https://0xukn.fr/tags/misc/</guid>
       <description></description>
     </item>
     
     <item>
       <title>network</title>
-      <link>https://www.0xukn.fr/tags/network/</link>
+      <link>https://0xukn.fr/tags/network/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/network/</guid>
+      <guid>https://0xukn.fr/tags/network/</guid>
       <description></description>
     </item>
     
     <item>
       <title>PRNG</title>
-      <link>https://www.0xukn.fr/tags/prng/</link>
+      <link>https://0xukn.fr/tags/prng/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/prng/</guid>
+      <guid>https://0xukn.fr/tags/prng/</guid>
       <description></description>
     </item>
     
     <item>
       <title>SQL injection</title>
-      <link>https://www.0xukn.fr/tags/sql-injection/</link>
+      <link>https://0xukn.fr/tags/sql-injection/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/sql-injection/</guid>
+      <guid>https://0xukn.fr/tags/sql-injection/</guid>
       <description></description>
     </item>
     
     <item>
       <title>use-after-free</title>
-      <link>https://www.0xukn.fr/tags/use-after-free/</link>
+      <link>https://0xukn.fr/tags/use-after-free/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/use-after-free/</guid>
+      <guid>https://0xukn.fr/tags/use-after-free/</guid>
       <description></description>
     </item>
     
     <item>
       <title>web</title>
-      <link>https://www.0xukn.fr/tags/web/</link>
+      <link>https://0xukn.fr/tags/web/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/web/</guid>
+      <guid>https://0xukn.fr/tags/web/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Wireshark</title>
-      <link>https://www.0xukn.fr/tags/wireshark/</link>
+      <link>https://0xukn.fr/tags/wireshark/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/wireshark/</guid>
+      <guid>https://0xukn.fr/tags/wireshark/</guid>
       <description></description>
     </item>
     
     <item>
       <title>zip cracking</title>
-      <link>https://www.0xukn.fr/tags/zip-cracking/</link>
+      <link>https://0xukn.fr/tags/zip-cracking/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/zip-cracking/</guid>
+      <guid>https://0xukn.fr/tags/zip-cracking/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Data Exfiltration Toolkit</title>
-      <link>https://www.0xukn.fr/tags/data-exfiltration-toolkit/</link>
+      <link>https://0xukn.fr/tags/data-exfiltration-toolkit/</link>
       <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/data-exfiltration-toolkit/</guid>
+      <guid>https://0xukn.fr/tags/data-exfiltration-toolkit/</guid>
       <description></description>
     </item>
     
     <item>
       <title>OpenSSL</title>
-      <link>https://www.0xukn.fr/tags/openssl/</link>
+      <link>https://0xukn.fr/tags/openssl/</link>
       <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/openssl/</guid>
+      <guid>https://0xukn.fr/tags/openssl/</guid>
       <description></description>
     </item>
     
     <item>
       <title>RSA</title>
-      <link>https://www.0xukn.fr/tags/rsa/</link>
+      <link>https://0xukn.fr/tags/rsa/</link>
       <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/rsa/</guid>
+      <guid>https://0xukn.fr/tags/rsa/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Volatility</title>
-      <link>https://www.0xukn.fr/tags/volatility/</link>
+      <link>https://0xukn.fr/tags/volatility/</link>
       <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/volatility/</guid>
+      <guid>https://0xukn.fr/tags/volatility/</guid>
       <description></description>
     </item>
     
     <item>
       <title>bruteforce</title>
-      <link>https://www.0xukn.fr/tags/bruteforce/</link>
+      <link>https://0xukn.fr/tags/bruteforce/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/bruteforce/</guid>
+      <guid>https://0xukn.fr/tags/bruteforce/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Heartbleed</title>
-      <link>https://www.0xukn.fr/tags/heartbleed/</link>
+      <link>https://0xukn.fr/tags/heartbleed/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/heartbleed/</guid>
+      <guid>https://0xukn.fr/tags/heartbleed/</guid>
       <description></description>
     </item>
     
     <item>
       <title>privilege escalation</title>
-      <link>https://www.0xukn.fr/tags/privilege-escalation/</link>
+      <link>https://0xukn.fr/tags/privilege-escalation/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/privilege-escalation/</guid>
+      <guid>https://0xukn.fr/tags/privilege-escalation/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Shellshock</title>
-      <link>https://www.0xukn.fr/tags/shellshock/</link>
+      <link>https://0xukn.fr/tags/shellshock/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/shellshock/</guid>
+      <guid>https://0xukn.fr/tags/shellshock/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Apache Struts</title>
-      <link>https://www.0xukn.fr/tags/apache-struts/</link>
+      <link>https://0xukn.fr/tags/apache-struts/</link>
       <pubDate>Fri, 02 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/apache-struts/</guid>
+      <guid>https://0xukn.fr/tags/apache-struts/</guid>
       <description></description>
     </item>
     
     <item>
       <title>CVE-2017-5638</title>
-      <link>https://www.0xukn.fr/tags/cve-2017-5638/</link>
+      <link>https://0xukn.fr/tags/cve-2017-5638/</link>
       <pubDate>Fri, 02 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/cve-2017-5638/</guid>
+      <guid>https://0xukn.fr/tags/cve-2017-5638/</guid>
       <description></description>
     </item>
     
     <item>
       <title>local file inclusion</title>
-      <link>https://www.0xukn.fr/tags/local-file-inclusion/</link>
+      <link>https://0xukn.fr/tags/local-file-inclusion/</link>
       <pubDate>Thu, 01 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/local-file-inclusion/</guid>
+      <guid>https://0xukn.fr/tags/local-file-inclusion/</guid>
       <description></description>
     </item>
     
     <item>
       <title>LDAP injection</title>
-      <link>https://www.0xukn.fr/tags/ldap-injection/</link>
+      <link>https://0xukn.fr/tags/ldap-injection/</link>
       <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.0xukn.fr/tags/ldap-injection/</guid>
+      <guid>https://0xukn.fr/tags/ldap-injection/</guid>
       <description></description>
     </item>
     
