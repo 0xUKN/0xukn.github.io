@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>SQL injection on 0xUKN - (in)Security Blog</title>
-    <link>https://0xukn.fr/tags/sql-injection/</link>
+    <link>https://www.0xukn.fr/tags/sql-injection/</link>
     <description>Recent content in SQL injection on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 04 Mar 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://0xukn.fr/tags/sql-injection/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.0xukn.fr/tags/sql-injection/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : Sogeti Quals 2019 - NoteBad.exe</title>
-      <link>https://0xukn.fr/posts/writeupsogeti2019notebad.exe/</link>
+      <link>https://www.0xukn.fr/posts/writeupsogeti2019notebad.exe/</link>
       <pubDate>Mon, 04 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://0xukn.fr/posts/writeupsogeti2019notebad.exe/</guid>
+      <guid>https://www.0xukn.fr/posts/writeupsogeti2019notebad.exe/</guid>
       <description>La ShadowLeague vous met gracieusement à disposition un gestionnaire de notes. Not bad, huh ?</description>
     </item>
     
     <item>
       <title>Write Up : SantHackLaus 2019 - Netrunner</title>
-      <link>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
+      <link>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</link>
       <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
+      <guid>https://www.0xukn.fr/posts/writeupsanthacklaus2019netrunner/</guid>
       <description>V, I got a mission for you! We discoved a Netrunner who hack neural implants to create false memories. We spotted the target&amp;rsquo;s interface on the Net.</description>
     </item>
     

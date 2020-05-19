@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>local file inclusion on 0xUKN - (in)Security Blog</title>
-    <link>https://0xukn.fr/tags/local-file-inclusion/</link>
+    <link>https://www.0xukn.fr/tags/local-file-inclusion/</link>
     <description>Recent content in local file inclusion on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 01 Nov 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://0xukn.fr/tags/local-file-inclusion/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.0xukn.fr/tags/local-file-inclusion/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : ECW 2018 - SysIA</title>
-      <link>https://0xukn.fr/posts/writeupecw2018sysia/</link>
+      <link>https://www.0xukn.fr/posts/writeupecw2018sysia/</link>
       <pubDate>Thu, 01 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://0xukn.fr/posts/writeupecw2018sysia/</guid>
+      <guid>https://www.0xukn.fr/posts/writeupecw2018sysia/</guid>
       <description>Our young sysadmin IA still does some human errors. I guess it still has to learn before production. But we can&amp;rsquo;t afford to delay it another time !</description>
     </item>
     

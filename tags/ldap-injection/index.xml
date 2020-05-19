@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>LDAP injection on 0xUKN - (in)Security Blog</title>
-    <link>https://0xukn.fr/tags/ldap-injection/</link>
+    <link>https://www.0xukn.fr/tags/ldap-injection/</link>
     <description>Recent content in LDAP injection on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 31 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://0xukn.fr/tags/ldap-injection/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.0xukn.fr/tags/ldap-injection/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Write Up : ECW 2018 - AdmYSsion</title>
-      <link>https://0xukn.fr/posts/writeupecw2018admyssion/</link>
+      <link>https://www.0xukn.fr/posts/writeupecw2018admyssion/</link>
       <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://0xukn.fr/posts/writeupecw2018admyssion/</guid>
+      <guid>https://www.0xukn.fr/posts/writeupecw2018admyssion/</guid>
       <description>An LDAP Injection challenge with a neat trick &amp;hellip;</description>
     </item>
     
