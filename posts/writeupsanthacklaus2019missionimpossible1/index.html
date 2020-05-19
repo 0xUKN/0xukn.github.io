@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : SantHackLaus 2019 - Mission Impossible 1 &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible1/">Write Up : SantHackLaus 2019 - Mission Impossible 1</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/forensics">forensics</a>
+			
+				 - 
+				<a href="/tags/volatility">Volatility</a>
+			
+				 - 
+				<a href="/tags/zip-cracking">zip cracking</a>
+			
+		</div>
+	
+            <span class="post-date">2019-01-02 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>SantHackLaus is a Jeopardy CTF challenge. It is organized by IMT Lille Douai. I had a great time solving these challenges :D</p>
+<p>Mission Impossible 1 is a forensic challenge. We need to recover the flag that has been deleted from the machine by the attacker.</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We just have two file : challenge.elf and his checksum challenge.md5.</p>
+<p>The file challenge.elf is a Linux memory dump. Let&rsquo;s analyze it with <a href="https://www.volatilityfoundation.org/">Volatility</a>.</p>
+<p>I didn&rsquo;t have a profile for this Linux version (Debian8-3_16_0-amd64x64), so I created one with the following <a href="https://d4rkw1ll0w4n6.wordpress.com/2018/04/27/creating-volatility-profile-for-centos67/">tutorial</a>.</p>
+<p>First, let&rsquo;s enumerate the processes in this memory dump with pstree.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible1/pstree.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;volatility_plugins/&#39; -f challenge.elf --profile=Linuxdebian8-3_16_0-amd64x64 linux_pstree</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>We mainly notice that bash and an apache server are running.
+Let&rsquo;s look if there is something interesting in bash history.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible1/bash.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;volatility_plugins/&#39; -f challenge.elf --profile=Linuxdebian8-3_16_0-amd64x64 linux_bash</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>Sounds great ! The attacker&rsquo;s working directory was /var/www/a-strong-hero.com/. Let&rsquo;s try to enumerate files in this directory.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible1/files.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;./volatility_plugins/&#39; -f challenge.elf --profile=Linuxdebian8-3_16_0-amd64x64 linux_find_file -L |grep &#39;/var/www/a-strong-hero.com/&#39;</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<h2 id="-recovery"><em>[+]</em> Recovery</h2>
+<p>There are some interesting files. We can mainly notice a backup.zip multipart archive.<br>
+Let&rsquo;s retrieve the archive with the following command for each part :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible1/ls.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;./volatility_plugins/&#39; -f challenge.elf --profile=Linuxdebian8-3_16_0-amd64x64 linux_find_file -i 0xffff88001e61d4b0 -O backup.zip</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>We now have all archive parts. We now need to combine them in one archive with the following command : <code>zip -s 0 backup.zip --out backup2.zip</code></p>
+<p>The resulting archive is password-protected&hellip; It&rsquo;s only possible to enumerate the files it contains with &ldquo;strings&rdquo;.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible1/strings.png"  />
+    
+    
+    <figcaption>
+        <h5>strings backup2.zip</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>We can notice that some of these files are available in plaintext in the memory dump. We can then use the known plaintext attack on this zip file with pkcrack to recover it.
+I will use the bootstrap.js file.<br>
+Let&rsquo;s first recover this known file from memory <code>volatility --plugins='./volatility_plugins/' -f challenge.elf --profile=Linuxdebian8-3_16_0-amd64x64 linux_find_file -i 0xffff88001e444898 -O bootstrap.js</code> and zip it <code>zip boots.zip bootstrap.js</code>.</p>
+<p>We can now run pkcrack to recover the encrypted archive, and read the flag inside : <code>pkcrack -c &quot;jcvd-website/js/bootstrap.js&quot; -p &quot;bootstrap.js&quot; -C backup2.zip -P boots.zip -d decrypted.zip -a</code>.</p>
+<p>Flag is : IMTLD{z1p_1s_n0t_alw4y5_s4fe}.</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

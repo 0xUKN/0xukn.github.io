@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Apache Struts on 0xUKN - (in)Security Blog</title>
+    <link>https://0xukn.fr/tags/apache-struts/</link>
+    <description>Recent content in Apache Struts on 0xUKN - (in)Security Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 02 Nov 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://0xukn.fr/tags/apache-struts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Write Up : ECW 2018 - Troll.JSP</title>
+      <link>https://0xukn.fr/posts/writeupecw2018trolljsp/</link>
+      <pubDate>Fri, 02 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://0xukn.fr/posts/writeupecw2018trolljsp/</guid>
+      <description>A tr0ll Web challenge based on CVE-2017-5638</description>
+    </item>
+    
+  </channel>
+</rss>

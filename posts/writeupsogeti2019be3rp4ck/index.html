@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : Sogeti Quals 2019 - Be3rP4ck &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsogeti2019be3rp4ck/">Write Up : Sogeti Quals 2019 - Be3rP4ck</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/reverse-engineering">reverse-engineering</a>
+			
+				 - 
+				<a href="/tags/go">Go</a>
+			
+		</div>
+	
+            <span class="post-date">2019-03-04 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>Sogeti CTF was a qualifier for the <a href="https://sogeti-cyber-escape.bemyapp.com/">Sogeti Cyber E-Scape</a>. I could not find a team to participate in this event, so I played alone and finally managed to find a team for the final :)</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>Find the flag in this <a href="/resources/sogeti_Be3rP4ck/Be3rP4ck">executable</a>.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/file1.png"  />
+    
+    
+</figure>
+
+<h2 id="-reversing-1"><em>[+]</em> Reversing 1</h2>
+<p>We are facing a simple program which asks us to input a flag.</p>
+<p>After analyzing the program, it appears that our input is XORed with 0x87, and then NOTed 4 times.<br>
+Of course, not not not not something is something, so our input is simply XORed with 0x87.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/base_main.png"  />
+    
+    
+</figure>
+
+<p>The result is then compared with &lsquo;\xc9\xb7\xf3\xd8\xd3\xef\xb4\xd8\xe1\xeb\xb3\xc0\xc0\xc0\xc0\xc0&rsquo;.</p>
+<p>Here is the flag &hellip; ?</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/flag1.png"  />
+    
+    
+</figure>
+
+<p>Well, this is the wrong flag. The main function is not the real entry point of this program : there&rsquo;s a function called main_0, which calls the previous main if the number of arguments provided to the program is different than 2.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/main_2.png"  />
+    
+    
+</figure>
+
+<p>So, let&rsquo;s try to find this real program ;)
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/difference_main.png"  />
+    
+    
+</figure>
+</p>
+<p>The binary is obfuscated using overlapping instructions : there are some data bytes in the executable code, so disassemblers wrongly interpret the assembly instructions.
+Fortunately, IDA is good enough to detect the meaningful code.</p>
+<p>After analysis, it appears that the current program contains a zlib compressed data block.</p>
+<p>When you run the executable, this block is uncompressed and then xored with &lsquo;ELF&rsquo;.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/uncompress.png"  />
+    
+    
+</figure>
+</p>
+<p>The result of these operations is used to create a file in memory with the <code> memfd_create</code> function and then execute it with the arguments we gave to the first program.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/memexec.png"  />
+    
+    
+</figure>
+
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/fexecve.png"  />
+    
+    
+</figure>
+</p>
+<p>Let&rsquo;s dump the second executable with this python script :</p>
+<pre><code>#!/usr/bin/python
+
+import zlib
+
+with open('Be3rP4ck') as f:
+	data = f.read()
+
+dump = zlib.decompress(data[0x20c0:0x8974b])
+
+dump2 = &quot;&quot;
+
+for i in range(len(dump)):
+	dump2 += chr(ord(dump[i]) ^ ord(&quot;ELF&quot;[i%3]))
+
+with open('stage2.elf','w') as f:
+	f.write(dump2)
+</code></pre><h2 id="-reversing-2"><em>[+]</em> Reversing 2</h2>
+<p>We now have our second stage, which is a Go binary ;)
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/file2.png"  />
+    
+    
+</figure>
+</p>
+<p>It structure is simple, it shows us a welcome message, calculate a value based on our input and compare it to a reference string in the executable.<br>
+If both strings are equal, we win ;)
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/file2_structure.png"  />
+    
+    
+</figure>
+</p>
+<p>The reference string is &ldquo;1f4e509605c9f4bf22f4bf22a5c9fe23bbfee5dd22ffdde5fb22aafedcdd22f5f1d6f0a4a5a589&rdquo; (hex encoded).<br>
+The custom &ldquo;hash&rdquo; function which computes the flag from our input is <code>sogehash</code>.</p>
+<p>Here is the function code :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_Be3rP4ck/sogehash.png"  />
+    
+    
+</figure>
+</p>
+<p>Once reversed, the sogehash function is the following in Python :</p>
+<pre><code>def sogehash(REF):
+	prev = 0x00
+	out = &quot;&quot;
+	for char in REF:
+		new_char = ((ord(char) &lt;&lt; 2) ^ ord(char))
+		out += &quot;%x&quot; % ((((ord(char) &lt;&lt; 2) ^ ord(char)) ^ (prev &gt;&gt; 8)) &amp; 0xff)
+		prev = new_char
+	return out
+</code></pre><p>We just have to reverse this function, and apply the reversed function to the reference string to get the flag !</p>
+<pre><code>def un_sogehash(REF, current = &quot;&quot;):
+	if len(current) == len(REF):
+		return current
+	elif len(current) == 0:
+		prev = 0x00
+	else:
+		prev = ((ord(current[-1]) &lt;&lt; 2) ^ ord(current[-1]))	
+	for char in string.printable:
+		new_char = ((((ord(char) &lt;&lt; 2) ^ ord(char)) ^ (prev &gt;&gt; 8)) &amp; 0xff)
+		if new_char == ord(REF[len(current)]):
+			new = un_sogehash(REF, current+char)
+			if new == False:
+				pass
+			else:
+				return new
+	return False
+</code></pre><p>Here&rsquo;s the final <a href="/resources/sogeti_Be3rP4ck/solve.py">script</a>.</p>
+<p>Flag : SCE{Th1s_1s_th3_r3al_fl4g_w3ll_d0ne!!!}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

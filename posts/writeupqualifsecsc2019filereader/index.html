@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECSC Quals 2019 - Filereader &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupqualifsecsc2019filereader/">Write Up : ECSC Quals 2019 - Filereader</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/pwn">pwn</a>
+			
+				 - 
+				<a href="/tags/linux-exploitation">Linux exploitation</a>
+			
+				 - 
+				<a href="/tags/stack-overflow">stack overflow</a>
+			
+		</div>
+	
+            <span class="post-date">2019-05-30 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>This CTF was organized by the <a href="https://www.ssi.gouv.fr/en/">ANSSI</a> to recruit potential members for the French <a href="https://www.europeancybersecuritychallenge.eu/">ECSC CTF</a> team. I managed to finish 7th in the senior category (21-25 years old).</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>Votre objectif : lire le fichier /home/user0/flag.</p>
+<p>Connectez-vous avec la commande suivante :</p>
+<p>ssh -p 4001 <a href="mailto:user0@challenges.ecsc-teamfrance.fr">user0@challenges.ecsc-teamfrance.fr</a></p>
+<p>Le mot de passe est user0.</p>
+<p>You can download the binary <a href="/resources/ecsc_2019_filereader/filereader">here</a> if you want to try.</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>It&rsquo;s a classical pwn challenge setup. We have a setuid binary, and we need to exploit it in order to read the flag file.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecsc_2019_filereader/intro.png"  />
+    
+    
+</figure>
+</p>
+<p>We can retrieve the binary with scp, and create a local exploit !<br>
+Let&rsquo;s run checksec and file to collect basic informations about the binary.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecsc_2019_filereader/infos.png"  />
+    
+    
+</figure>
+</p>
+<p>It&rsquo;s an x86_64 binary, so function arguments are passed through registers and not through the stack. A standard memory address is 64 bits long.<br>
+The binary is dynamicaly linked, and his GOT table is not fully read-only, so we may use it in our future exploit. It also has an NX stack, so we can&rsquo;t use stack shellcodes.
+As the binary has PIE enabled and server has ASLR enabled, we can&rsquo;t predict the address of any useful section (code, GOT, heap, stack, libraries &hellip;).</p>
+<p>After a quick look at disassembly in your favorite tool, it appears that the code is really simple and is vulnerable to a basic stack based buffer overflow.<br>
+The reversed pseudo C code is something like <a href="/resources/ecsc_2019_filereader/filereader.c">that</a> :</p>
+<pre><code>int readfile(char *filename,char *file_content)
+{
+  uint stack_canary;
+  FILE *__stream;
+  ulong uVar2;
+  
+  stack_canary = rand();
+  stackPush(&amp;canaries,(ulong)stack_canary);
+  __stream = fopen(filename,&quot;r&quot;);
+  if (__stream == NULL) 
+  {
+    printf(&quot;Error opening file \'%s\'&quot;,filename);
+  }
+  else 
+  {
+    fread(file_content,1,0x7ff,__stream);
+    fclose(__stream);
+  }
+  uVar2 = stackPop(&amp;canaries);
+  if ((uint)uVar2 != stack_canary) {
+    puts(&quot;Stack smashing detected!&quot;);
+    exit(0xff);
+  }
+  return uVar2;
+}
+
+int main(int argc,char *argv[])
+{
+  uint __seed;
+  int iVar1;
+  long lVar2;
+  undefined8 *puVar3;
+  byte bVar4;
+  char file_content [256];
+  FILE *local_118;
+  char filename [260];
+  uint stack_canary;
+  
+  bVar4 = 0;
+  __seed = getpid();
+  srand(__seed);
+  stack_canary = rand();
+  stackPush(&amp;canaries,(ulong)stack_canary);
+  lVar2 = 0x100;
+  puVar3 = file_content;
+ 
+  if (argc &lt; 2) 
+  {
+    printf(&quot;usage: %s &lt;input_file&gt;\n&quot;,**argv[]);
+    exit(1);
+  }
+
+  local_118 = fopen((char *)*argv[][1],&quot;r&quot;);
+
+  if (local_118 == NULL) 
+  {
+    printf(&quot;Unable to open file \'%s\'\n&quot;,*argv[][1]);
+    exit(2);
+  }
+
+  bzero(filename,0x100);
+  while( true ) 
+  {
+    iVar1 = fscanf(local_118,&quot;%s&quot;,filename);
+    if (iVar1 == -1) break;
+    printf(&quot;Attempting to read file \'%s\'\n&quot;,filename);
+    bzero(file_content,0x800);
+    readfile(filename,file_content);
+    puts(file_content);
+    bzero(filename,0x100);
+  }
+  __seed = stackPop(&amp;canaries);
+  if (__seed != stack_canary) 
+  {
+    puts(&quot;Stack smashing detected!&quot;);
+    exit(0xff);
+  }
+  return 0;
+}
+
+</code></pre><p>The code <code>iVar1 = fscanf(local_118,&quot;%s&quot;,filename);</code> doesn&rsquo;t check the data size before writing it into memory.
+Another interesting thing we can notice, is that the binary uses a custom stack canary to prevent stack smashing.</p>
+<pre><code>  srand(__seed);
+  stack_canary = rand();
+  stackPush(&amp;canaries,(ulong)stack_canary)
+</code></pre><p>The canary, which is supposed to be random, is not random at all as it is based on a random number generated with a predictable seed (the PID).</p>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>The goal is clear : use the stack overflow to overwrite the EIP-save, and get code execution on return.<br>
+In order to do this, we&rsquo;ll need to leak an address from libc (classical ret2libc) and to find a way to predict the canary to avoid overwriting it with a non valid-value.</p>
+<p>The problem is that it requires to interact several times with the program, but it asks us a file to read only one time &hellip;<br>
+Solution : let&rsquo;s use a special file type called a &lsquo;named pipe&rsquo;. This kind of file acts like a standard input/output and can be read by a program and written by another one.<br>
+So this pipe will acts like our stdin for this binary : we just need to ask the binary to read our named pipe, and write in this named pipe the name of the file we want it to read.</p>
+<p>Using this technique, leaking libc base address is easy : we will just ask the program to read /proc/self/maps, which contains all the memory mappings for the <em>self</em> process (included base address for libraries).<br>
+Leaking the canary is easier, as the PID is a known information, we will just need to generate a random value with the PID value as seed, and use it as our canary.</p>
+<p>So our exploit will be composed with 3 steps :</p>
+<ul>
+<li>Reading /proc/self/maps</li>
+<li>Computing the stack canary with this <a href="/resources/ecsc_2019_filereader/getrand.c">C program</a></li>
+<li>Achieve code execution with a payload like PADDING + CANARY + RET2LIBC (using a one gadget to simplify our payload)</li>
+</ul>
+<p>You can find the final exploit code <a href="/resources/ecsc_2019_filereader/exploit.py">here</a>.</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

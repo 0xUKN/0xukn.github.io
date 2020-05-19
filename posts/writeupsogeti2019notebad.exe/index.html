@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : Sogeti Quals 2019 - NoteBad.exe &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsogeti2019notebad.exe/">Write Up : Sogeti Quals 2019 - NoteBad.exe</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/sql-injection">SQL injection</a>
+			
+		</div>
+	
+            <span class="post-date">2019-03-04 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>Sogeti CTF was a qualifier for the <a href="https://sogeti-cyber-escape.bemyapp.com/">Sogeti Cyber E-Scape</a>. I could not find a team to participate in this event, so I played alone and finally managed to find a team for the final :)</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>La ShadowLeague vous met gracieusement à disposition un gestionnaire de notes. Not bad, huh ?</p>
+<p><a href="http://quals.shadow-league.org">http://quals.shadow-league.org</a>:8001</p>
+<p>**Aucun bruteforce n’est autorisé sur cette épreuve**</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We are facing a simple website with a login form.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic2.png"  />
+    
+    
+</figure>
+</p>
+<p>We don&rsquo;t have an account, so let&rsquo;s register with <code>test:test</code>.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic3.png"  />
+    
+    
+</figure>
+</p>
+<p>We can now access the web application. It only contains one page, with the possibility to add and view our notes.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic4.png"  />
+    
+    
+</figure>
+</p>
+<p>It appears that I&rsquo;m not the first one to use the <code>test</code> account and people already tried many payloads :D</p>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>After some fuzzing, the differents forms don&rsquo;t appear to be vulnerable to XSS neither first order SQL injection &hellip;</p>
+<p>But, a second order SQL injection is present in this web application : the SQL request which collects the notes for an account uses the username without sanitizing it, so if you register an account with a malicious username, you can exploit this SQL injection to read arbitrary values in the database.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic7.png"  />
+    
+    
+    <figcaption>
+        <h5>Malicious username = testitof&#39; UNION SELECT 1 #</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>When you connect to this account, you can see the following note list :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic.png"  />
+    
+    
+</figure>
+</p>
+<p>Our payload works, we just have to extract the flag now. After some tests, it appears that the flag is the admin password.</p>
+<p>Let&rsquo;s retrieve it !</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic5.png"  />
+    
+    
+    <figcaption>
+        <h5>Malicious username = testitof&#39; UNION SELECT password FROM user #</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>And finally :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_notebad.exe/pic6.png"  />
+    
+    
+</figure>
+</p>
+<p>Flag : SCE{sQl_fl4g3d_f0r_th3_w1n!}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

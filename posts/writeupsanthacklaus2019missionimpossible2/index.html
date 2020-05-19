@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : SantHackLaus 2019 - Mission Impossible 2 &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible2/">Write Up : SantHackLaus 2019 - Mission Impossible 2</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/forensics">forensics</a>
+			
+				 - 
+				<a href="/tags/network">network</a>
+			
+				 - 
+				<a href="/tags/wireshark">Wireshark</a>
+			
+				 - 
+				<a href="/tags/volatility">Volatility</a>
+			
+				 - 
+				<a href="/tags/data-exfiltration-toolkit">Data Exfiltration Toolkit</a>
+			
+		</div>
+	
+            <span class="post-date">2019-01-03 </span>
+            <div class="post-content">
+                <h2 id="-recon"><em>[+]</em> Recon</h2>
+<p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>SantHackLaus is a Jeopardy CTF challenge. It is organized by IMT Lille Douai. I had a great time solving these challenges :D</p>
+<p>Mission Impossible 2 is a forensic challenge. We need to recover the flag that has been deleted from the machine by the attacker.<br>
+You can get the archive <a href="http://tiny.cc/dr6p1y">here</a>.</p>
+<p>We just have two file : challenge.raw and challenge.pcapng.</p>
+<p>challenge.pcapng is a network capture. Let&rsquo;s analyze it with <a href="https://www.wireshark.org/">Wireshark</a>.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/wireshark.png"  />
+    
+    
+    <figcaption>
+        <h5>Filter : ICMP requests and HTTP requests only</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>The network capture contains a lot of base64 encoded data. It seems to be a data exfiltration through HTTP and ICMP requests&hellip;<br>
+I dumped the interesting filtered packets as JSON in &ldquo;exported.json&rdquo;.</p>
+<p>challenge.raw is a Linux memory dump. Let&rsquo;s analyze it with <a href="https://www.volatilityfoundation.org/">Volatility</a>.</p>
+<p>I didn&rsquo;t have a profile for this Linux version (Debian8-3_16_0-amd64x64), so I created one with the following <a href="https://d4rkw1ll0w4n6.wordpress.com/2018/04/27/creating-volatility-profile-for-centos67/">tutorial</a>.</p>
+<p>First, let&rsquo;s enumerate the processes in this memory dump with pstree.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/pstree.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;./volatility_plugins/&#39; -f challenge.raw --profile=Linuxdebian8-3_16_0-amd64x64 linux_pstree</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>We mainly notice that bash and an apache server are running.
+Let&rsquo;s look if there is something interesting in bash history.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/bash.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;./volatility_plugins/&#39; -f challenge.raw --profile=Linuxdebian8-3_16_0-amd64x64 linux_bash</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>Sounds great ! We can notice two things :<br>
+1- The attacker&rsquo;s working directory was /opt/DET. The flag.zip archive (protected by password &lsquo;IMTLD{N0t_Th3_Fl4g}') contains flag.jpg, which is probably our flag.<br>
+2- The attacker used this <a href="https://github.com/sensepost/DET">Data Exfiltration Toolkit (DET)</a> to exfiltrate flag.zip through HTTP et ICMP. The config file used by the attacker is config.json, which he created a few minutes ago (<code>nano config.json</code>).</p>
+<p>The network capture is the dump of this exfiltration.</p>
+<h2 id="-recovery"><em>[+]</em> Recovery</h2>
+<p>So, to get our flag, we need to understand the DET&rsquo;s code, and create a script which recover the exfiltrated file from the network capture.<br>
+Then, we just have to unzip the archive with password &lsquo;IMTLD{N0t_Th3_Fl4g}&rsquo; and read flag.jpg !</p>
+<p>Let&rsquo;s recover config.json, which contains the AES secret key used to encrypt the network traffic.
+File enumeration :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/files.png"  />
+    
+    
+    <figcaption>
+        <h5>volatility --plugins=&#39;./volatility_plugins/&#39; -f challenge.raw --profile=Linuxdebian8-3_16_0-amd64x64 linux_find_file -L |grep &#39;config.json&#39;</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>File extraction : <code>volatility --plugins='./volatility_plugins/' -f challenge.raw --profile=Linuxdebian8-3_16_0-amd64x64 linux_find_file -i 0xffff88003c16ec80 -O config.json</code>.</p>
+<p>Here is config.json contents :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/config.png"  />
+    
+    
+    <figcaption>
+        <h5>cat config.json</h5>
+        
+    </figcaption>
+    
+</figure>
+.</p>
+<p>We have the attacker&rsquo;s AES key !</p>
+<p>Here is script I made to recover the encrypted exfiltrated data from the network capture (exported as JSON).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> os<span style="color:#f92672">,</span>binascii
+<span style="color:#f92672">import</span> base64
+<span style="color:#f92672">import</span> random
+<span style="color:#f92672">import</span> urllib
+<span style="color:#f92672">import</span> hashlib
+<span style="color:#f92672">import</span> sys
+<span style="color:#f92672">import</span> string
+<span style="color:#f92672">import</span> time
+<span style="color:#f92672">import</span> json
+<span style="color:#f92672">import</span> signal
+<span style="color:#f92672">import</span> struct
+<span style="color:#f92672">import</span> tempfile
+<span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> randint
+<span style="color:#f92672">from</span> os <span style="color:#f92672">import</span> listdir
+<span style="color:#f92672">from</span> os.path <span style="color:#f92672">import</span> isfile, join
+<span style="color:#f92672">from</span> Crypto.Cipher <span style="color:#f92672">import</span> AES
+<span style="color:#f92672">from</span> zlib <span style="color:#f92672">import</span> compress, decompress
+
+KEY <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;IMTLD{This_is_just_a_key_not_the_flag}&#34;</span>
+COMPRESSION <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+files <span style="color:#f92672">=</span> {}
+CURRENT_FILE_DATA <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+CURRENT_FILE_NAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">retrieve_file</span>(jobid):
+        fname <span style="color:#f92672">=</span> files[jobid][<span style="color:#e6db74">&#39;filename&#39;</span>]
+        filename <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">.</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (fname<span style="color:#f92672">.</span>replace(
+            os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>pathsep, <span style="color:#e6db74">&#39;&#39;</span>), time<span style="color:#f92672">.</span>strftime(<span style="color:#e6db74">&#34;%Y-%m-</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">.%H:%M:%S&#34;</span>, time<span style="color:#f92672">.</span>gmtime()))
+        content <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(str(v) <span style="color:#66d9ef">for</span> v <span style="color:#f92672">in</span> files[jobid][<span style="color:#e6db74">&#39;data&#39;</span>])<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;hex&#39;</span>)
+        content <span style="color:#f92672">=</span> aes_decrypt(content, KEY)
+        <span style="color:#66d9ef">if</span> COMPRESSION:
+        	content <span style="color:#f92672">=</span> decompress(content)
+        f <span style="color:#f92672">=</span> open(filename, <span style="color:#e6db74">&#39;w&#39;</span>)
+        f<span style="color:#f92672">.</span>write(content)
+        f<span style="color:#f92672">.</span>close()
+        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;File </span><span style="color:#e6db74">%s</span><span style="color:#e6db74"> recovered&#34;</span> <span style="color:#f92672">%</span> (fname))
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_file</span>(message):
+        <span style="color:#66d9ef">global</span> files
+        jobid <span style="color:#f92672">=</span> message[<span style="color:#ae81ff">0</span>]
+        <span style="color:#66d9ef">if</span> jobid <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> files:
+            files[jobid] <span style="color:#f92672">=</span> {}
+            files[jobid][<span style="color:#e6db74">&#39;checksum&#39;</span>] <span style="color:#f92672">=</span> message[<span style="color:#ae81ff">3</span>]<span style="color:#f92672">.</span>lower()
+            files[jobid][<span style="color:#e6db74">&#39;filename&#39;</span>] <span style="color:#f92672">=</span> message[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>lower()
+            files[jobid][<span style="color:#e6db74">&#39;data&#39;</span>] <span style="color:#f92672">=</span> []
+            files[jobid][<span style="color:#e6db74">&#39;packets_number&#39;</span>] <span style="color:#f92672">=</span> []
+            <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Register packet for file </span><span style="color:#e6db74">%s</span><span style="color:#e6db74"> with checksum </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span>
+                    (files[jobid][<span style="color:#e6db74">&#39;filename&#39;</span>], files[jobid][<span style="color:#e6db74">&#39;checksum&#39;</span>]))
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">retrieve_data</span>(data):
+	message <span style="color:#f92672">=</span> data
+	<span style="color:#66d9ef">if</span> (message<span style="color:#f92672">.</span>count(<span style="color:#e6db74">&#34;|!|&#34;</span>) <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">2</span>):
+		<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Received {0} bytes&#34;</span><span style="color:#f92672">.</span>format(len(message)))
+		message <span style="color:#f92672">=</span> message<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;|!|&#34;</span>)
+		jobid <span style="color:#f92672">=</span> message[<span style="color:#ae81ff">0</span>]
+
+                <span style="color:#75715e"># register packet</span>
+		<span style="color:#66d9ef">if</span> (message[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;REGISTER&#34;</span>):
+			<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;[+] NEW FILE REGISTERED&#34;</span>)
+			register_file(message)
+                <span style="color:#75715e"># done packet</span>
+		<span style="color:#66d9ef">elif</span> (message[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;DONE&#34;</span>):
+			<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;[+] FILE RECEIVED&#34;</span>)
+			retrieve_file(jobid)
+             	  <span style="color:#75715e"># data packet</span>
+		<span style="color:#66d9ef">else</span>:
+                    <span style="color:#75715e"># making sure there&#39;s a jobid for this file</span>
+			<span style="color:#66d9ef">if</span> (jobid <span style="color:#f92672">in</span> files <span style="color:#f92672">and</span> message[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> files[jobid][<span style="color:#e6db74">&#39;packets_number&#39;</span>]):
+				files[jobid][<span style="color:#e6db74">&#39;data&#39;</span>]<span style="color:#f92672">.</span>append(<span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(message[<span style="color:#ae81ff">2</span>:]))
+				files[jobid][<span style="color:#e6db74">&#39;packets_number&#39;</span>]<span style="color:#f92672">.</span>append(message[<span style="color:#ae81ff">1</span>])
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">aes_decrypt</span>(message, key<span style="color:#f92672">=</span>KEY):
+    <span style="color:#66d9ef">try</span>:
+        <span style="color:#75715e"># Retrieve CBC IV</span>
+        iv <span style="color:#f92672">=</span> message[:AES<span style="color:#f92672">.</span>block_size]
+        message <span style="color:#f92672">=</span> message[AES<span style="color:#f92672">.</span>block_size:]
+
+        <span style="color:#75715e"># Derive AES key from passphrase</span>
+        aes <span style="color:#f92672">=</span> AES<span style="color:#f92672">.</span>new(hashlib<span style="color:#f92672">.</span>sha256(key)<span style="color:#f92672">.</span>digest(), AES<span style="color:#f92672">.</span>MODE_CBC, iv)
+        message <span style="color:#f92672">=</span> aes<span style="color:#f92672">.</span>decrypt(message)
+
+        <span style="color:#75715e"># Remove PKCS5 padding</span>
+        unpad <span style="color:#f92672">=</span> <span style="color:#66d9ef">lambda</span> s: s[:<span style="color:#f92672">-</span>ord(s[len(s) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>:])]
+
+        <span style="color:#66d9ef">return</span> unpad(message)
+    <span style="color:#66d9ef">except</span>:
+        <span style="color:#66d9ef">return</span> None
+
+f <span style="color:#f92672">=</span> open(<span style="color:#e6db74">&#39;exported.json&#39;</span>,<span style="color:#e6db74">&#39;r&#39;</span>)
+mydata <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>load(f)
+<span style="color:#66d9ef">for</span> packet <span style="color:#f92672">in</span> mydata:
+	line <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&#39;</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;icmp&#39;</span> <span style="color:#f92672">in</span> packet[<span style="color:#e6db74">&#39;_source&#39;</span>][<span style="color:#e6db74">&#39;layers&#39;</span>]:
+		<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;[+] ICMP Packet Received !&#39;</span>)
+		line <span style="color:#f92672">=</span> binascii<span style="color:#f92672">.</span>unhexlify(<span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(packet[<span style="color:#e6db74">&#39;_source&#39;</span>][<span style="color:#e6db74">&#39;layers&#39;</span>][<span style="color:#e6db74">&#39;icmp&#39;</span>][<span style="color:#e6db74">&#39;data&#39;</span>][<span style="color:#e6db74">&#39;data.data&#39;</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;:&#39;</span>)))
+	<span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;http&#39;</span> <span style="color:#f92672">in</span> packet[<span style="color:#e6db74">&#39;_source&#39;</span>][<span style="color:#e6db74">&#39;layers&#39;</span>]:
+		<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;[+] HTTP Packet Received !&#39;</span>)
+		line <span style="color:#f92672">=</span> packet[<span style="color:#e6db74">&#39;_source&#39;</span>][<span style="color:#e6db74">&#39;layers&#39;</span>][<span style="color:#e6db74">&#39;http&#39;</span>][<span style="color:#e6db74">&#39;http.file_data&#39;</span>][<span style="color:#ae81ff">5</span>:]
+	line <span style="color:#f92672">=</span> urllib<span style="color:#f92672">.</span>unquote(line)<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf8&#39;</span>) 
+	<span style="color:#66d9ef">print</span>(line)
+	retrieve_data(base64<span style="color:#f92672">.</span>b64decode(line))
+f<span style="color:#f92672">.</span>close()
+</code></pre></div><p>The biggest part of this code is just adapted from <a href="https://github.com/sensepost/DET/blob/master/det.py">DET original code</a>.</p>
+<p>After running the script and unzipping the resulting archive with <code>python solve.py &amp;&amp; unzip -P 'IMTLD{N0t_Th3_Fl4g}' flag.zip</code>, we have our flag.jpg !!</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_missionimpossible2/flag.jpg"  />
+    
+    
+</figure>
+
+<p>Flag is : IMTLD{Th3_d4t4_3xf1ltr4Ti0n_T00lK1t_r0x}.</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

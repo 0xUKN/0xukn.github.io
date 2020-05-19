@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : SantHackLaus 2019 - Netrunner &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsanthacklaus2019netrunner/">Write Up : SantHackLaus 2019 - Netrunner</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/shellshock">Shellshock</a>
+			
+				 - 
+				<a href="/tags/privilege-escalation">privilege escalation</a>
+			
+				 - 
+				<a href="/tags/sql-injection">SQL injection</a>
+			
+		</div>
+	
+            <span class="post-date">2019-01-02 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>SantHackLaus is a Jeopardy CTF challenge. It is organized by IMT Lille Douai. I had a great time solving these challenges :D
+NetRunner is a realistic challenge following the classic steps of an attack (Exploitation, Pivoting/Movement, Privilege Escalation).</p>
+<h2 id="-part-1"><em>[+]</em> Part 1</h2>
+<p>Challenge starts at 51.75.202.113:2077. We are facing a basic login form :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/netrunner_login.png"  />
+    
+    
+</figure>
+</p>
+<p>Fuzzing wasn&rsquo;t allowed, so after some basic checks, it appears that this login page is the only one we have.</p>
+<p>Let&rsquo;s inspect login requests with BurpSuite.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/netrunner_burp_login.png"  />
+    
+    
+    <figcaption>
+        <h5>username=test&amp;password=test&amp;login=Login</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>After a few tries, it appears that this form is vulnerable to blind SQL injection. One way to extract the username and the password is to create a time-based payload like this :<code>username=test' OR user LIKE &quot;aaa%&quot; OR SLEEP(4)#		('%' is the wildcard in MySQL)</code>.<br>
+We can identify available columns and then extract data by viewing the response time for our requests.</p>
+<p>Another possible exploitation is to simply bypass the login form without any data extraction with the following payload : <code>username=test' OR 1=1 LIMIT 1,1#</code>.<br>
+We can now access the admin page :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/admin_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Flag 1 is : IMTLD{w3b_1nT3rf4ceS_4r3_3v1L}</p>
+<h2 id="-part-2"><em>[+]</em> Part 2</h2>
+<p>We can notice that the admin username is &ldquo;puppet-master&rdquo;.<br>
+We also have access to another interesting page : e91ac60004c77904ad889a5762a68b06e53b7c21.html.<br>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/key_page.png"  />
+    
+    
+    <figcaption>
+        <h5>e91ac60004c77904ad889a5762a68b06e53b7c21.html</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>This RSA private key can be used to connect 51.75.202.113:2021 through SSH with username &ldquo;puppet-master&rdquo;.<br>
+Let&rsquo;s copy the key in a file and connect to the server !<br>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/ssh_home.png"  />
+    
+    
+    <figcaption>
+        <h5>ssh puppet-master@51.75.202.113 -p 2021 -i key.rsa</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>So, we can connect with SSH, we have a valid shell (not /bin/false), but it is configured to just run a script and exit, without letting us access the prompt.</p>
+<p>The server is hopefully vulnerable to <a href="https://www.symantec.com/connect/blogs/shellshock-all-you-need-know-about-bash-bug-vulnerability">Shellshock</a> !
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/ssh_shellshock.png"  />
+    
+    
+    <figcaption>
+        <h5>ssh puppet-master@51.75.202.113 -p 2021 -i key.rsa &#39;() { a;}; echo Vulnerable !&#39;</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>Let&rsquo;s pop a shell and read the 2nd flag !
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/ssh_shellshock2.png"  />
+    
+    
+    <figcaption>
+        <h5>ssh puppet-master@51.75.202.113 -p 2021 -i key.rsa &#39;() { a;}; /bin/sh&#39;</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>Flag 2 is : IMTLD{Pr0t3ct_Y0uR_Gh0sT}</p>
+<h2 id="-part-3"><em>[+]</em> Part 3</h2>
+<p>For the third flag, we need to read the tech.note file. To achieve this goal, we need to escalate our privileges from group &ldquo;puppet-master&rdquo; to group &ldquo;zetatech-maintenance&rdquo;.<br>
+In the client.note, one interesting detail we notice is that the password for our account is the same as the username &hellip;</p>
+<p>After basic privilege escalation recon, we can notice that &ldquo;puppet-master&rdquo; is allowed to execute wget as &ldquo;zetatech-maintenance&rdquo; group member&hellip;
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/sudo_info.png"  />
+    
+    
+    <figcaption>
+        <h5>sudo -l -S # (-S option allow us to use sudo without tty)</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>Let&rsquo;s dump the tech.note file. We will use wget -i option which use a file as a list of urls to read tech.note&rsquo;s content.<br>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/santhacklaus_netrunner/sudo_exploit.png"  />
+    
+    
+    <figcaption>
+        <h5>sudo -S -g zetatech-maintenance wget -i  ~/tech.note</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>Flag 3 is : IMTLD{Wh3r3_d03s_HuM4n1tY_3nd}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

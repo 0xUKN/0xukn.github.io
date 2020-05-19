@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : Sogeti Quals 2019 - Game Editor &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupsogeti2019gameeditor/">Write Up : Sogeti Quals 2019 - Game Editor</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/pwn">pwn</a>
+			
+				 - 
+				<a href="/tags/linux-exploitation">Linux exploitation</a>
+			
+				 - 
+				<a href="/tags/use-after-free">use-after-free</a>
+			
+		</div>
+	
+            <span class="post-date">2019-03-04 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>Sogeti CTF was a qualifier for the <a href="https://sogeti-cyber-escape.bemyapp.com/">Sogeti Cyber E-Scape</a>. I could not find a team to participate in this event, so I played alone and finally managed to find a team for the final :)</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>The Game - You need to be admin to have the flag</p>
+<p>Here&rsquo;s the <a href="/resources/sogeti_game-editor/uaf.c">source code</a>.</p>
+<p>nc quals.shadow-league.org 5001</p>
+<h2 id="-finding-the-bug"><em>[+]</em> Finding the bug</h2>
+<p>The file name is an hint : uaf stands for <a href="https://cwe.mitre.org/data/definitions/416.html">Use-After-Free</a>, a well known type of vulnerability.</p>
+<p>So basically, a use after free situation occurs when memory referenced by a pointer has been freed, but this pointer has not been set to NULL.<br>
+If you try dereferencing this pointer, it will not throw an error, but the value pointed by the pointer won&rsquo;t be the expected one : it can be anything, since this memory portion is considered as &ldquo;free&rdquo; (understand not used by a variable).</p>
+<p>In order to exploit this vulnerability, we need to create a pointer and allocate some memory space to it, then free this memory and find a way to write what we want at this previously occupied place.</p>
+<p>Let&rsquo;s read the code !</p>
+<p>It&rsquo;s a simple program which accept several commands :</p>
+<ul>
+<li>set &lt;name&gt; : free the current player if there is one, and create a new player called &lt;name&gt;</li>
+<li>del : free the current player if there is one <code>WITHOUT SETTING POINTER TO NULL</code></li>
+<li>title : change the game title</li>
+<li>login : show the flag <code>IF YOU ARE AN ADMIN</code></li>
+<li>exit : well&hellip; it leaves the program</li>
+</ul>
+<p>As an example :<br>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_game-editor/example1.png"  />
+    
+    
+</figure>
+</p>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>The player structure is the following :</p>
+<pre><code>typedef struct player {
+  char name[MAX_NAME_SIZE];
+  int64_t isAdmin;
+} player_t;
+
+</code></pre><p>The &lsquo;set&rsquo; command allocate a new player structure, give it our name and set <code>isAdmin</code> to 0.<br>
+The &lsquo;del&rsquo; command free the pointer holding our player structure, but don&rsquo;t set it to NULL.</p>
+<p>We need to exploit this uaf vulnerability to set current player&rsquo;s <code>isAdmin</code> value to any value different than 0, and then login to retrieve the flag.</p>
+<p>Here&rsquo;s the simplified heap layout after &lsquo;set aaaaaa&rsquo; command :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_game-editor/heap1.png"  />
+    
+    
+</figure>
+</p>
+<p>Here&rsquo;s the same memory region, but after &lsquo;del&rsquo; command :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_game-editor/heap2.png"  />
+    
+    
+</figure>
+</p>
+<p>If we could to allocate a new heap block with the content we want, we would be able to overwrite the &ldquo;current player&rdquo; pointed.</p>
+<p>Basically, we can just use the &lsquo;title a&hellip;a&rsquo; to allocate a new heap block with controlled value, because the &lsquo;title&rsquo; commmand uses the <code>strndup</code> function, which returns a new heap block pointing to the string we want to duplicate.<br>
+We will just try several title size until our player structure is overwritten.</p>
+<p>Here&rsquo;s the same memory region, but after &lsquo;title aaaaaaaaaaaaaaaaaaaaaaa&rsquo; command :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/sogeti_game-editor/heap3.png"  />
+    
+    
+</figure>
+</p>
+<p>The player structure has been overwritten, and <code>isAdmin</code> value is not 0 anymore : we can now login and grab the flag !</p>
+<p>Here&rsquo;s my final <a href="/resources/sogeti_game-editor/solve.py">solution script</a>.</p>
+<p>Flag : SCE{Th1s_wasnt_f0r_fr3e_r1ght?}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

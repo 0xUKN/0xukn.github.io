@@ -1,0 +1,11 @@
+ErrorDocument 400 /404.html
+ErrorDocument 401 /404.html
+ErrorDocument 402 /404.html
+ErrorDocument 403 /404.html
+ErrorDocument 404 /404.html
+ErrorDocument 405 /404.html
+ErrorDocument 406 /404.html
+ErrorDocument 407 /404.html
+ErrorDocument 408 /404.html
+ErrorDocument 409 /404.html
+ErrorDocument 410 /404.html

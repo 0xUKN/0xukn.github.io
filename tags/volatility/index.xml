@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Volatility on 0xUKN - (in)Security Blog</title>
+    <link>https://0xukn.fr/tags/volatility/</link>
+    <description>Recent content in Volatility on 0xUKN - (in)Security Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 03 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://0xukn.fr/tags/volatility/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Write Up : SantHackLaus 2019 - Bret Stiles</title>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019bretstiles/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019bretstiles/</guid>
+      <description>Any task can be accomplished, as long as it&amp;rsquo;s broken down into manageable pieces.</description>
+    </item>
+    
+    <item>
+      <title>Write Up : SantHackLaus 2019 - Mission Impossible 2</title>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible2/</link>
+      <pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible2/</guid>
+      <description>&lt;a href=&#34;https://www.youtube.com/watch?v=NA2UkAcXdL0&#34;&gt;https://www.youtube.com/watch?v=NA2UkAcXdL0&lt;/a&gt;</description>
+    </item>
+    
+    <item>
+      <title>Write Up : SantHackLaus 2019 - Mission Impossible 1</title>
+      <link>https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible1/</link>
+      <pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://0xukn.fr/posts/writeupsanthacklaus2019missionimpossible1/</guid>
+      <description>&lt;a href=&#34;https://www.youtube.com/watch?v=pEfI3ZrLDBs&#34;&gt;https://www.youtube.com/watch?v=pEfI3ZrLDBs&lt;/a&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

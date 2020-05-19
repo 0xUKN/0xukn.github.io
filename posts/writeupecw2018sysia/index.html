@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : ECW 2018 - SysIA &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.69.2" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupecw2018sysia/">Write Up : ECW 2018 - SysIA</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/local-file-inclusion">local file inclusion</a>
+			
+		</div>
+	
+            <span class="post-date">2018-11-01 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>ECW (European Cyber Week) is a Jeopardy student CTF challenge. It is organized by Thales, Airbus and the Bretagne region. I had a great time solving these challenges, despite a little abusive guessing in stegano challenges. Hurry to hand over this !</p>
+<p>SysIA is a Web challenge with a <a href="https://www.owasp.org/index.php/Testing_for_Local_File_Inclusion">Local File Inclusion</a>. I will explain here how I solved it.</p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We are facing a PHP website :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/main_page.png"  />
+    
+    
+</figure>
+</p>
+<p>There are a few pages, which doesn&rsquo;t seem vulnerable. But, the robots.txt contains a interesting information :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/robots_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Let&rsquo;s request this non-indexed page :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/lfi_page.png"  />
+    
+    
+</figure>
+</p>
+<p>Hum, this looks like an LFI&hellip; After the classic test, we can confirm this diagnosis :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/lfi_confirm_page.png"  />
+    
+    
+    <figcaption>
+        <h5>https://example.fr/notinterestingfile.php?page=../../../../etc/passwd</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>After a little fuzzing, it appears that some files in the /root directory are readable&hellip; Well, the sysadmin AI still has to learn ¯\<em>(ツ)</em>/¯.<br>
+Let&rsquo;s request the /root/.bash_history file which contain the bash commands history for user &lsquo;root&rsquo;.</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/lfi_history_page.png"  />
+    
+    
+    <figcaption>
+        <h5>https://example.fr/notinterestingfile.php?page=../../../../root/.bash_history</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<p>After a bit of formatting, we can find 3 interesting commands :</p>
+<ul>
+<li>locate flag.txt</li>
+<li>updatedb</li>
+<li>locate flag.txt</li>
+</ul>
+<p>It seems like the sysadmin tried to locate flag.txt file, it failed and he then updated the file database.<br>
+The file database should contain the flag.txt file location &hellip;<br>
+The default location for this file db is : /var/lib/mlocate/mlocate.db.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/mlocatedb_page.png"  />
+    
+    
+    <figcaption>
+        <h5>https://example.fr/notinterestingfile.php?page=../../../../var/lib/mlocate/mlocate.db</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>We know where the flag is located, so let&rsquo;s grab it !<br>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/ecw_sysia/flag_page.png"  />
+    
+    
+    <figcaption>
+        <h5>https://example.fr/notinterestingfile.php?page=../../../../var/www/ECW/solution/web/lfi/flag.txt</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p>Flag is : flezkljfezfezfezmljdfsmsdfsds4s4fez54f5e4z54.</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p>Thanks to <a href="https://haax.fr/">Haax</a> for the screenshots ! I totally forgot to take some during the CTF :(<br>
+<strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>
