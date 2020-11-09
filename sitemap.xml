@@ -4,7 +4,32 @@
   
   <url>
     <loc>https://0xukn.fr/</loc>
-    <lastmod>2020-05-14T00:00:00+00:00</lastmod>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/posts/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/tags/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/tags/web/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/posts/writeupkipodafterfreectf2020dweeder.exe/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/tags/xss/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -25,16 +50,6 @@
   <url>
     <loc>https://0xukn.fr/tags/reverse-engineering/</loc>
     <lastmod>2020-05-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/tags/</loc>
-    <lastmod>2020-05-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/posts/</loc>
-    <lastmod>2019-11-21T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -149,11 +164,6 @@
   
   <url>
     <loc>https://0xukn.fr/tags/use-after-free/</loc>
-    <lastmod>2019-03-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/tags/web/</loc>
     <lastmod>2019-03-04T00:00:00+00:00</lastmod>
   </url>
   

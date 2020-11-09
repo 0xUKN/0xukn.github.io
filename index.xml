@@ -6,10 +6,19 @@
     <description>Recent content on 0xUKN - (in)Security Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 May 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 09 Nov 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://0xukn.fr/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Write Up : KipodAfterFree CTF 2020 - Dweeder</title>
+      <link>https://0xukn.fr/posts/writeupkipodafterfreectf2020dweeder.exe/</link>
+      <pubDate>Mon, 09 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://0xukn.fr/posts/writeupkipodafterfreectf2020dweeder.exe/</guid>
+      <description>&amp;lsquo;Dweeder is just like a large communication platform except that you can only use it with a plugged nose&amp;rsquo; - @shuky, 2020</description>
+    </item>
     
     <item>
       <title>LibEggNogg</title>
