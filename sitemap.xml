@@ -8,12 +8,32 @@
   </url>
   
   <url>
+    <loc>https://0xukn.fr/tags/linux-exploitation/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://0xukn.fr/posts/</loc>
     <lastmod>2020-11-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
+    <loc>https://0xukn.fr/tags/pwn/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/tags/stack-overflow/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://0xukn.fr/tags/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/tags/use-after-free/</loc>
     <lastmod>2020-11-09T00:00:00+00:00</lastmod>
   </url>
   
@@ -24,6 +44,11 @@
   
   <url>
     <loc>https://0xukn.fr/posts/writeupkipodafterfreectf2020dweeder/</loc>
+    <lastmod>2020-11-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://0xukn.fr/posts/writeupkipodafterfreectf2020shadowstuck/</loc>
     <lastmod>2020-11-09T00:00:00+00:00</lastmod>
   </url>
   
@@ -53,16 +78,6 @@
   </url>
   
   <url>
-    <loc>https://0xukn.fr/tags/pwn/</loc>
-    <lastmod>2019-11-21T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/tags/stack-overflow/</loc>
-    <lastmod>2019-11-21T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://0xukn.fr/tags/windows-exploitation/</loc>
     <lastmod>2019-11-21T00:00:00+00:00</lastmod>
   </url>
@@ -70,11 +85,6 @@
   <url>
     <loc>https://0xukn.fr/posts/writeupecw2019sploitwin/</loc>
     <lastmod>2019-11-21T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/tags/linux-exploitation/</loc>
-    <lastmod>2019-11-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -159,11 +169,6 @@
   
   <url>
     <loc>https://0xukn.fr/tags/sql-injection/</loc>
-    <lastmod>2019-03-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://0xukn.fr/tags/use-after-free/</loc>
     <lastmod>2019-03-04T00:00:00+00:00</lastmod>
   </url>
   
