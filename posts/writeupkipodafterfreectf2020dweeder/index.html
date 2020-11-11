@@ -106,7 +106,7 @@
             <span class="post-date">2020-11-09 </span>
             <div class="post-content">
                 <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
-<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw,the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
+<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw, the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
 <h2 id="-presentation"><em>[+]</em> Presentation</h2>
 <p>&ldquo;Dweeder is just like a large communication platform except that you can only use it with a plugged nose&rdquo; - @shuky, 2020</p>
 <p><a href="https://dweeder.ctf.kaf.sh/">https://dweeder.ctf.kaf.sh/</a></p>
@@ -120,7 +120,7 @@
 </figure>
 </p>
 <p>Once logged in, there are 3 options.
-First, we can compose a dweed (with title and contents). Please note that it is possible to mention another user by using &ldquo;@USER_NAME&rdquo; in the content of the dweed.
+First, we can compose a dweed (with title and content). Please note that it is possible to mention another user by using &ldquo;@USER_NAME&rdquo; in the content of the dweed.
 <figure style="text-align: center;" >
     
         <img src="/resources/kaf2020_dweeder/compose.png"  />
@@ -298,7 +298,7 @@ DWEED_ID
     <span style="color:#f92672">&#34;status&#34;</span>:<span style="color:#66d9ef">true</span>
 }
 </code></pre></div><h2 id="-exploitation"><em>[+]</em> Exploitation</h2>
-<h3 id="1--finding-the-sink">1- Finding the sink</h3>
+<h4 id="1--finding-the-sink">1- Finding the sink</h4>
 <p>When you click a dweed from your mentions (as the admin does), you are basically redirected to <code>/?dweed=DWEED_ID</code>.</p>
 <p>The following <code>loadDweed</code> function is then called with this id:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadDweed</span>(<span style="color:#a6e22e">id</span>) {
@@ -318,12 +318,12 @@ DWEED_ID
     &quot;time&quot;:&quot;15:46&quot;,
     &quot;handle&quot;:&quot;1&quot;
 }
-</code></pre><p>So, as we control the contents and the title, we could try to inject an XSS payload in the content or the title in order to be reflected in the template. The problem is that a filter is in place in the <a href="https://github.com/NadavTasher/Template/">templating framework</a> :</p>
+</code></pre><p>So, as we control the content and the title, we could try to inject an XSS payload inside in order to be reflected in the template. The problem is that a filter is in place in the <a href="https://github.com/NadavTasher/Template/">templating framework</a> :</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">// Sanitize value using the default HTML sanitiser of the target browser
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">sanitizer</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">createElement</span>(<span style="color:#e6db74">&#34;p&#34;</span>);
 <span style="color:#a6e22e">sanitizer</span>.<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">value</span>;
 <span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">sanitizer</span>.<span style="color:#a6e22e">innerHTML</span>;
-</code></pre></div><p>This kind of approach of filtering is pretty strong against XSS in HTML context.</p>
+</code></pre></div><p>This kind of filtering approach is pretty strong against XSS in HTML context.</p>
 <p>Dweeds are rendered in the following template :</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">template</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dweed-normal&#34;</span>&gt;
     &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;margin: 1vh;&#34;</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;window.location = &#39;?dweed=${id}&#39;&#34;</span> <span style="color:#a6e22e">button</span> <span style="color:#a6e22e">column</span>&gt;
@@ -332,14 +332,14 @@ DWEED_ID
     &lt;/<span style="color:#f92672">div</span>&gt;
 &lt;/<span style="color:#f92672">template</span>&gt;
 </code></pre></div><p>Since <code>contents</code> and <code>title</code> are effectively used in an HTML context, we can&rsquo;t inject anything here. The last candidate is <code>id</code>. The problem is that we have no control over the <code>id</code> value since it is directly grabbed from the API and randomly generated by the server.</p>
-<h3 id="2--taking-over-the-id">2- Taking over the id</h3>
+<h4 id="2--taking-over-the-id">2- Taking over the id</h4>
 <p>We can notice that if the dweed grabbed from the API has an <code>id</code> parameter, this <code>id</code> will overwrite the <code>id</code> used for rendering the dweed because of the 3 dots right here :</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">        <span style="color:#a6e22e">insertDweed</span>({ <span style="color:#75715e">//insertDweed populate a template with the object given as parameter
 </span><span style="color:#75715e"></span>            <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">id</span>,
             ...<span style="color:#a6e22e">dweed</span>,
             <span style="color:#a6e22e">display</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;normal&#34;</span>
         });
-</code></pre></div><p>After a bit of research, I found that the server is accepting other parameters than the default ones <code>content</code> and <code>title</code> for creating a dweed. We can add field to the resulting dweed object by simply adding parameters at the dweed&rsquo;s creation. So we can insert an <code>id</code> field in the dweed and control the <code>id</code> value :</p>
+</code></pre></div><p>After a bit of research, I found that the server is accepting other parameters than the default ones <code>content</code> and <code>title</code> for creating a dweed. We can add fields to the resulting dweed object by simply adding parameters at the dweed&rsquo;s creation. So we can insert an <code>id</code> field in the dweed and control the <code>id</code> value :</p>
 <pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
 Content-Disposition: form-data; name=&quot;token&quot;
 
@@ -369,7 +369,7 @@ Hey !
         },
     <span style="color:#f92672">&#34;status&#34;</span>:<span style="color:#66d9ef">true</span>
 }
-</code></pre></div><p>At the first sight, we can think that it&rsquo;s an easy win : we have an injection in a Javascript context, our input is filtered for HTML context, so basically have XSS.
+</code></pre></div><p>At first sight, we can think that it&rsquo;s an easy win : we have an injection in a Javascript context, our input is filtered for HTML context, so basically have XSS.
 Yes, but there is a second filter specially crafted for <code>id</code> :</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">dweed</span>.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">28</span>)
     <span style="color:#66d9ef">return</span>;
@@ -377,14 +377,14 @@ Yes, but there is a second filter specially crafted for <code>id</code> :</p>
     <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;0123456789 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&amp;*()_-+={}|&#34;</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#66d9ef">char</span>) <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>)
         <span style="color:#66d9ef">return</span>;
 </code></pre></div><p>Since the injection occurs in a Javascript string, we need to inject a <code>'</code> to escape the string and execute code but <code>'</code> is not allowed here.</p>
-<h3 id="3--bypassing-ids-filter">3- Bypassing id&rsquo;s filter</h3>
-<p>After reading the <a href="https://github.com/NadavTasher/Template/">templating framework</a> code, I realized that the template parser is recursive : it takes all the fields of the object passed as parameters, search the template for the string <code>${FIELD_NAME}</code> and replace it by its value. So, if a field <code>foo</code> has a value like <code>${bar}</code>, the template will first replace <code>${foo}</code> by <code>${bar}</code> and then replace <code>${bar}</code> by <code>bar</code>'s value.</p>
+<h4 id="3--bypassing-ids-filter">3- Bypassing id&rsquo;s filter</h4>
+<p>After reading the <a href="https://github.com/NadavTasher/Template/">templating framework</a> code, I realized that the template parser is recursive : it takes all the fields of the object passed as parameter, search the template for the string <code>${FIELD_NAME}</code> and replace it by its value. So, if a field <code>foo</code> has a value like <code>${bar}</code>, the template will first replace <code>${foo}</code> by <code>${bar}</code> and then replace <code>${bar}</code> by <code>bar</code>'s value.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">value</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#a6e22e">search</span>))
     <span style="color:#66d9ef">while</span> (<span style="color:#a6e22e">html</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#a6e22e">search</span>))
         <span style="color:#a6e22e">html</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>.<span style="color:#a6e22e">replace</span>(<span style="color:#a6e22e">search</span>, <span style="color:#a6e22e">value</span>);
 </code></pre></div><p>We can use this behavior to escape the filter on <code>id</code> : we just need to set <code>id</code> to the value <code>${title}</code> and perform our XSS injection through the <code>title</code> field.</p>
-<h3 id="4--putting-it-all-together">4- Putting it all together</h3>
-<p>The final payload is contained in the following request (don not forget to mention the admin !) :</p>
+<h4 id="4--putting-it-all-together">4- Putting it all together</h4>
+<p>The final payload is contained in the following request (do not forget to mention the admin !) :</p>
 <pre><code>------WebKitFormBoundaryBMbsD8z0stKDVPNg
 Content-Disposition: form-data; name=&quot;token&quot;
 

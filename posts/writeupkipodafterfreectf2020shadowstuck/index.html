@@ -112,7 +112,7 @@
             <span class="post-date">2020-11-09 </span>
             <div class="post-content">
                 <p><em><strong>This post spoils a CTF challenge &hellip; Don&rsquo;t read if you want to try it !</strong></em></p>
-<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw,the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
+<p>KipodAfterFree CTF is a Jeopardy-style information security competition hosted by KipodAfterFree CTF team. I registered late, so I only had time to do 2 challenges before the end of the CTF. Btw, the challenges were really interesting and will be left online until the end of November if you want to try them out.</p>
 <h2 id="-presentation"><em>[+]</em> Presentation</h2>
 <p>Ever since PITA™ declared the usage of stack canaries inhumane, we&rsquo;ve been working on bringing you the latest and greatest in animal-abuse-free stack protector technology. Can you crack it?</p>
 <p>nc challenges.ctf.kaf.sh 8000</p>
@@ -157,7 +157,7 @@
   SHADOW_STACK <span style="color:#f92672">=</span> (<span style="color:#66d9ef">long</span>)pvVar2 <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x1000</span>;
   <span style="color:#66d9ef">return</span>;
 }
-</code></pre></div><p>The hooks at the beginning and at the end of every functions are supported by the GCC option <code>-finstrument-functions</code> and the following functions :</p>
+</code></pre></div><p>Hooks at the beginning and at the end of every functions are supported by the GCC option <code>-finstrument-functions</code> and the following functions :</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">__cyg_profile_func_enter</span>(undefined8 param_1,undefined8 param_2)
 {
   <span style="color:#f92672">*</span>SHADOW_STACK <span style="color:#f92672">=</span> param_2;
@@ -236,7 +236,7 @@ LAB_00101b0e:
   retval <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
   <span style="color:#66d9ef">goto</span> exit;
 </code></pre></div><p>When the employee is not at the end of the linked list, there is no problem : the structure is safely freed, and the previous <code>next</code> pointer is overwritten with the next employee&rsquo;s structure address.
-But if the employee is at the end of the linked list (the last employee), the structure is freed but the previous <code>next</code> pointer is not overwritten : we have a use-after-free situation.</p>
+But if the employee is at the end of the linked list (the last employee), the structure is freed and the previous <code>next</code> pointer is not overwritten : we have a use-after-free situation.</p>
 <p>The interesting thing is that this use-after-free always occurs when firing the last employee, just before the program asks us to provide an 0x18 bytes length message as a firing reason.
 Since 0x18 is the exact length of an employee structure, the message&rsquo;s buffer will be allocated on our previously freed employee structure, effectively overwriting the employee&rsquo;s name and the <code>next</code> pointer.</p>
 <p>We can use this use-after-free to read and write arbitrary memory : let&rsquo;s say there are n employees in the linked list, the idea is to fire the nth employee to trigger the UAF, overwrite the <code>next</code> pointer with an address we want to read or write, and then access the fake n+1 employee through the <code>manager_read</code> function (for arbitrary read) or <code>manager_rename</code> function (for arbitrary write).</p>

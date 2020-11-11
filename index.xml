@@ -30,12 +30,12 @@
     </item>
     
     <item>
-      <title>LibEggNogg</title>
+      <title>LibEggNogg : an instrumentation library for EggNogg&#43;</title>
       <link>https://0xukn.fr/projects/libeggnogg/</link>
       <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
       
       <guid>https://0xukn.fr/projects/libeggnogg/</guid>
-      <description>Reverse Engineering EggNogg+</description>
+      <description>LibEggNogg is a C library with Python3 bindings which allows you to extract live informations and script an &lt;a href=&#34;https://madgarden.itch.io/eggnogg&#34;&gt;EggNogg+&lt;/a&gt; game.</description>
     </item>
     
     <item>

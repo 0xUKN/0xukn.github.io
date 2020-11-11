@@ -2,7 +2,7 @@
 <html>
 
     <head>
-        <title> LibEggNogg &middot; 0xUKN - (in)Security Blog </title>
+        <title> LibEggNogg : an instrumentation library for EggNogg&#43; &middot; 0xUKN - (in)Security Blog </title>
 
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -89,7 +89,7 @@
 </header>
 
         <div class="container wrapper">
-            <h1><a href="https://0xukn.fr/projects/libeggnogg/">LibEggNogg</a></h1>
+            <h1><a href="https://0xukn.fr/projects/libeggnogg/">LibEggNogg : an instrumentation library for EggNogg&#43;</a></h1>
 	
 		<br><br>
 		<div id="tags">
@@ -101,11 +101,264 @@
 				 - 
 				<a href="/tags/game-hacking">game-hacking</a>
 			
+				 - 
+				<a href="/tags/instrumentation">instrumentation</a>
+			
 		</div>
 	
             <span class="post-date">2020-05-14 </span>
             <div class="post-content">
-                <h2 id="-bye"><em>[+]</em> Bye</h2>
+                <p><em><strong>Github project : <a href="https://github.com/0xUKN/libeggnogg">https://github.com/0xUKN/libeggnogg</a></strong></em></p>
+<h2 id="-presentation"><em>[+]</em> Presentation</h2>
+<p>During an <a href="https://madgarden.itch.io/eggnogg">EggNogg+</a> game with a friend, we realized that it would be convenient to have the possibility to play against an AI. As my friend is passionate about deep learning, he suggested to develop a reinforcement learning based AI for this game. In this purpose, I reverse-engineered the game and developped an instrumentation library with easy-to-use bindings in Python3, so that he could collect live informations and script the game to train his AI (we actually streamed on Twitch some AI training sessions).</p>
+<h2 id="-reversing-the-game"><em>[+]</em> Reversing the game</h2>
+<p>To train the AI, we need to be able to collect live informations about the game (for example : each player&rsquo;s position, current map, each player&rsquo;s weapon, health bars&hellip;).
+As the game is not open source, I had to reverse-engineer it. I mainly used <a href="https://www.hex-rays.com/products/ida/support/download_freeware/">IDA</a> and <a href="https://www.gnu.org/software/gdb/">GDB</a> to reverse the essentials parts of the game :</p>
+<ul>
+<li>main game loop</li>
+<li>most importants in-memory structures such as players, maps &hellip;</li>
+<li>most importants in-memory structures offsets</li>
+<li>understand how the game globally works</li>
+</ul>
+<p>Fortunately, the game binary is not stripped so we have most of function names and global variable names, which made the reversing part easier.
+<figure style="text-align: center;" >
+    
+        <img src="/resources/eggnoggplus/functions.png"  />
+    
+    
+    <figcaption>
+        <h5>Function list</h5>
+        
+    </figcaption>
+    
+</figure>
+</p>
+<p><br>
+<br>
+\</p>
+<figure style="text-align: center;" >
+    
+        <img src="/resources/eggnoggplus/example_ida.png"  />
+    
+    
+    <figcaption>
+        <h5>game_start function</h5>
+        
+    </figcaption>
+    
+</figure>
+
+<h2 id="-instrumenting-the-game"><em>[+]</em> Instrumenting the game</h2>
+<p>I decided to instrument the game through a shared library mapped in the game&rsquo;s memory space. I use two different techniques to inject the library in the game&rsquo;s process :</p>
+<ul>
+<li>if the game is already running, I inject the library with my <a href="https://github.com/0xUKN/libinjector">LibInjector</a>, which basically uses <code>ptrace</code> syscall to pause the game, and modify its execution flow to call <code>dlopen</code> on our library.</li>
+<li>if the game is not running, we just need to use the LD_PRELOAD trick : run the game with <code>LD_PRELOAD=LIBEGGNOGG_PATH</code> in the environment.</li>
+</ul>
+<p>The library executes its <code>_init</code> function at loading, which basically starts everything we need in a new background thread.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">namespace LibEggnogg
+{
+	__attribute__((constructor))<span style="color:#66d9ef">void</span> _init(<span style="color:#66d9ef">void</span>)
+	{
+		<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span> libSDL_handle;
+		std<span style="color:#f92672">::</span>string LIBSDL;
+
+		puts(<span style="color:#e6db74">&#34;[+] Library loaded !&#34;</span>);
+
+		std<span style="color:#f92672">::</span><span style="color:#66d9ef">thread</span> background_task(init_libeggnogg_rpc_serv); 
+		background_task.detach();
+		atexit(exit_libeggnogg_rpc_serv);
+		atexit(RemoveSharedMemory);
+        ...
+    }
+}
+</code></pre></div><h4 id="1--live-information-extraction-from-the-game">1- Live-information extraction from the game</h4>
+<p>After reversing the game, we now know where are located in memory the informations we need. So, I made a <code>GameState</code> C structure which contains all these informations (actual leader, player&rsquo;s position, key pressed &hellip;).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">enum</span> PlayerAction {DEFAULT, DEAD, DUCK, EGGNOGG, JUMP, KICK, NOTHING, PUNCH, RUN, STAB, STANCE, STUN, THROW};
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">enum</span> PlayerAction PlayerAction;
+
+<span style="color:#66d9ef">struct</span> Player 
+{
+    <span style="color:#66d9ef">bool</span> isAlive;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> life;
+    <span style="color:#66d9ef">float</span> last_pos_x;
+    <span style="color:#66d9ef">float</span> last_pos_y;
+    <span style="color:#66d9ef">float</span> pos_x;
+    <span style="color:#66d9ef">float</span> pos_y;
+    <span style="color:#66d9ef">bool</span> hasSword;
+    <span style="color:#66d9ef">float</span> sword_pos_x;
+    <span style="color:#66d9ef">float</span> sword_pos_y;
+    <span style="color:#66d9ef">signed</span> <span style="color:#66d9ef">char</span> direction;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> bounce_ctr;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> contact_point;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> keys_pressed;
+    PlayerAction action;
+};
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> Player Player;
+
+<span style="color:#66d9ef">struct</span> Sword
+{
+    <span style="color:#66d9ef">float</span> pos_x;
+    <span style="color:#66d9ef">float</span> pos_y;
+};
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> Sword Sword;
+
+<span style="color:#66d9ef">struct</span> GameState
+{
+    Player player1;
+    Player player2;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> leader;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> room_number;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> total_room_number;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> winner;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> nb_swords;
+    Sword swords[MAX_SWORD_NUMBER];
+};
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> GameState GameState;
+</code></pre></div><p>This structure is mapped into a shared memory, so that we can read this structure from another process (for example the AI process !).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">GameState<span style="color:#f92672">*</span> <span style="color:#a6e22e">InitGameState</span>()
+{
+    <span style="color:#66d9ef">return</span> (GameState<span style="color:#f92672">*</span>)CreateSharedMemory(SHMEM, <span style="color:#66d9ef">sizeof</span>(LibEggnogg<span style="color:#f92672">::</span>GameState));
+}
+</code></pre></div><p>Finally, the <code>GameState</code> structure is regularly updated by the <code>UpdateGameState</code> function.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#75715e">//Shared Memory Functions
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">UpdateGameState</span>()
+{
+    gs<span style="color:#f92672">-&gt;</span>player1.isAlive <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>(<span style="color:#f92672">*</span>(<span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>)(PLAYER1_ADDRESS <span style="color:#f92672">+</span> ISDEAD_OFFSET));
+    gs<span style="color:#f92672">-&gt;</span>player2.isAlive <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>(<span style="color:#f92672">*</span>(<span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>)(PLAYER2_ADDRESS <span style="color:#f92672">+</span> ISDEAD_OFFSET));
+
+    <span style="color:#66d9ef">if</span>(gs<span style="color:#f92672">-&gt;</span>player1.isAlive)
+    {
+        gs<span style="color:#f92672">-&gt;</span>player1.life <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)(PLAYER1_ADDRESS <span style="color:#f92672">+</span> LIFE_OFFSET);
+        gs<span style="color:#f92672">-&gt;</span>player1.pos_x <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>)(PLAYER1_ADDRESS <span style="color:#f92672">+</span> POSX_OFFSET);
+        gs<span style="color:#f92672">-&gt;</span>player1.pos_y <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>)(PLAYER1_ADDRESS <span style="color:#f92672">+</span> POSY_OFFSET);
+        gs<span style="color:#f92672">-&gt;</span>player1.last_pos_x <span style="color:#f92672">=</span> gs<span style="color:#f92672">-&gt;</span>player1.pos_x;
+        gs<span style="color:#f92672">-&gt;</span>player1.last_pos_y <span style="color:#f92672">=</span> gs<span style="color:#f92672">-&gt;</span>player1.pos_y;
+        gs<span style="color:#f92672">-&gt;</span>player1.hasSword <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>(<span style="color:#f92672">*</span>(<span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>)(PLAYER1_ADDRESS <span style="color:#f92672">+</span> ISDISARMED_OFFSET));
+        ...
+    }
+    ...
+}
+</code></pre></div><p>This function is called after each frame thanks to a hook placed in the main game loop. This hook is applied by overwriting the GOT entry for <code>SDL_NumJoysticks</code> function (this function is only called in this loop) by our custom <code>SDL_NumJoysticks_hook</code> function.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">__attribute__((constructor))<span style="color:#66d9ef">void</span> _init(<span style="color:#66d9ef">void</span>)
+{
+    ...
+    SDL_NumJoysticks_real_GOT <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span><span style="color:#f92672">**</span>)SDL_NumJoysticks_GOT;
+	<span style="color:#f92672">*</span>SDL_NumJoysticks_real_GOT <span style="color:#f92672">=</span> (<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>SDL_NumJoysticks_hook;
+    ...
+}
+...
+<span style="color:#66d9ef">int</span> SDL_NumJoysticks_hook(<span style="color:#66d9ef">void</span>)
+{
+    <span style="color:#75715e">#ifdef DEBUG
+</span><span style="color:#75715e"></span>    puts(<span style="color:#e6db74">&#34;[+] Main loop hook called !&#34;</span>);
+    <span style="color:#75715e">#endif
+</span><span style="color:#75715e"></span>
+    UpdateGameState();
+    <span style="color:#66d9ef">return</span> ((<span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>)(<span style="color:#66d9ef">void</span>))SDL_NumJoysticks_real)();
+}
+</code></pre></div><p>So, we now have a way to extract needed informations !</p>
+<h4 id="2--scripting-the-game">2- Scripting the game</h4>
+<p>When training the AI, it can be useful to have the possibility to send &ldquo;commands&rdquo; to the game. For example, if the game is over and you want to restart a new game without using the GUI, a neat <code>game.restart()</code> function can be pretty handy. Another example, a <code>game.setSpeed()</code> function capable of setting the game speed can be pretty handy too.</p>
+<p>For this, I used an RPC server : when our library is loaded, it starts the RPC server, and it exposes functions we need.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#75715e">//RPC Functions
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">set_speed_3_svc</span>(u_long <span style="color:#f92672">*</span>argp, <span style="color:#66d9ef">struct</span> svc_req <span style="color:#f92672">*</span>rqstp) <span style="color:#75715e">//set game speed
+</span><span style="color:#75715e"></span>{
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> result;
+    <span style="color:#f92672">*</span>logic_rate <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>argp;
+    <span style="color:#66d9ef">return</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>) <span style="color:#f92672">&amp;</span>result;
+}
+
+
+u_long <span style="color:#f92672">*</span> <span style="color:#a6e22e">get_speed_3_svc</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>argp, <span style="color:#66d9ef">struct</span> svc_req <span style="color:#f92672">*</span>rqstp) <span style="color:#75715e">//get current game speed
+</span><span style="color:#75715e"></span>{
+    <span style="color:#66d9ef">static</span> u_long  result;
+    result <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>logic_rate;
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span>result;
+}
+
+<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> roomdef_result;
+<span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span> <span style="color:#a6e22e">get_roomdef_3_svc</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>argp, <span style="color:#66d9ef">struct</span> svc_req <span style="color:#f92672">*</span>rqstp) <span style="color:#75715e">//get room definition
+</span><span style="color:#75715e"></span>{
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> current_room_number <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)(ROOM_NUMBER_ADDRESS)); <span style="color:#75715e">//scaled from 0 (player1 win) to x (player2 win)
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> total_room_number <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)(TOTAL_ROOM_NUMBER_ADDRESS)) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//between 1 and x, rescaled from 0 to x-1
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">long</span> room_number_in_mapdef <span style="color:#f92672">=</span> current_room_number <span style="color:#f92672">-</span> total_room_number; <span style="color:#75715e">//scaled from 0 (center) to x (win maps for both player)
+</span><span style="color:#75715e"></span>    room_number_in_mapdef <span style="color:#f92672">=</span> (room_number_in_mapdef <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">?</span> <span style="color:#f92672">-</span>room_number_in_mapdef : room_number_in_mapdef;
+    roomdef_result <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>((<span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>)(ROOM_TEMPLATES_ADDRESS <span style="color:#f92672">+</span> room_number_in_mapdef <span style="color:#f92672">*</span> ROOM_TEMPLATE_SIZE));
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span>roomdef_result;
+}
+
+<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> mapname_result;
+<span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span> <span style="color:#a6e22e">get_mapname_3_svc</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>argp, <span style="color:#66d9ef">struct</span> svc_req <span style="color:#f92672">*</span>rqstp) <span style="color:#75715e">//get map name
+</span><span style="color:#75715e"></span>{
+    mapname_result <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>((<span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>)(MAP_NAME_ADDRESS));
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span>mapname_result;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">game_reset_3_svc</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>argp, <span style="color:#66d9ef">struct</span> svc_req <span style="color:#f92672">*</span>rqstp) <span style="color:#75715e">//reset game
+</span><span style="color:#75715e"></span>{
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span> result;
+    ((<span style="color:#66d9ef">void</span> (<span style="color:#f92672">*</span>)())GAME_RESET_FUNCTION)();
+    <span style="color:#66d9ef">return</span> (<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>) <span style="color:#f92672">&amp;</span>result;
+}
+</code></pre></div><h4 id="3--python-bindings">3- Python bindings</h4>
+<p>As the AI is Python based (and because I like Python), I made some C bindings for Python3. So, you can simply import the <code>pyeggnogg</code> module and start to play !</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#f92672">import</span> pyeggnogg <span style="color:#f92672">as</span> EggNogg
+
+lib_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;../bin/libeggnogg.so&#34;</span>
+executable_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;../../eggnoggplus&#34;</span>
+
+EggNogg<span style="color:#f92672">.</span>init(lib_path, executable_path)
+EggNogg<span style="color:#f92672">.</span>setSpeed(<span style="color:#ae81ff">15</span>)
+gs <span style="color:#f92672">=</span> EggNogg<span style="color:#f92672">.</span>getGameState()
+<span style="color:#66d9ef">print</span>(gs)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Javascript" data-lang="Javascript">{
+    <span style="color:#e6db74">&#34;player1&#34;</span><span style="color:#f92672">:</span> {
+        <span style="color:#e6db74">&#34;isAlive&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">True</span>,
+        <span style="color:#e6db74">&#34;life&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">100</span>,
+        <span style="color:#e6db74">&#34;pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2872.0</span>,
+        <span style="color:#e6db74">&#34;pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;last_pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2872.0</span>,
+        <span style="color:#e6db74">&#34;last_pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;hasSword&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">True</span>,
+        <span style="color:#e6db74">&#34;sword_pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2878.0</span>,
+        <span style="color:#e6db74">&#34;sword_pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;direction&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>,
+        <span style="color:#e6db74">&#34;bounce_ctr&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+        <span style="color:#e6db74">&#34;contact_point&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>,
+        <span style="color:#e6db74">&#34;keys_pressed&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+        <span style="color:#e6db74">&#34;action&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">10</span>,
+    },
+    <span style="color:#e6db74">&#34;player2&#34;</span><span style="color:#f92672">:</span> {
+        <span style="color:#e6db74">&#34;isAlive&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">True</span>,
+        <span style="color:#e6db74">&#34;life&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">100</span>,
+        <span style="color:#e6db74">&#34;pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2995.28955078125</span>,
+        <span style="color:#e6db74">&#34;pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;last_pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2995.28955078125</span>,
+        <span style="color:#e6db74">&#34;last_pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;hasSword&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">True</span>,
+        <span style="color:#e6db74">&#34;sword_pos_x&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">3001.28955078125</span>,
+        <span style="color:#e6db74">&#34;sword_pos_y&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">111.8499984741211</span>,
+        <span style="color:#e6db74">&#34;direction&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>,
+        <span style="color:#e6db74">&#34;bounce_ctr&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+        <span style="color:#e6db74">&#34;contact_point&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>,
+        <span style="color:#e6db74">&#34;keys_pressed&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+        <span style="color:#e6db74">&#34;action&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">10</span>,
+    },
+    <span style="color:#e6db74">&#34;leader&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+    <span style="color:#e6db74">&#34;room_number&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">5</span>,
+    <span style="color:#e6db74">&#34;total_room_number&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">11</span>,
+    <span style="color:#e6db74">&#34;nb_swords&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span>,
+    <span style="color:#e6db74">&#34;swords&#34;</span><span style="color:#f92672">:</span> {},
+}
+</code></pre></div><p>It is also possible to dump the actual map from memory and monitor it from Python.
+<figure style="text-align: center;" >
+    
+        <video src="/resources/eggnoggplus/demo.mp4"  controls />
+    
+    
+</figure>
+</p>
+<h2 id="-bye"><em>[+]</em> Bye</h2>
 <p><strong>Feel free to tell me what you think about this post :)</strong></p>
 
             </div>
